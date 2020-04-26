@@ -1,0 +1,32 @@
+%\title{Example letter using the newlfm LaTeX package}
+%
+% See http://texblog.org/2013/11/11/latexs-alternative-letter-class-newlfm/
+% and http://www.ctan.org/tex-archive/macros/latex/contrib/newlfm
+% for more information.
+%
+\documentclass[11pt,stdletter,orderfromtodate,sigleft]{newlfm}
+\usepackage{blindtext, xfrac}
+\usepackage{lipsum}
+
+\newlfmP{dateskipbefore=15pt}
+\newlfmP{sigsize=15pt}
+\newlfmP{sigskipbefore=15pt}
+\newlfmP{addrfromskipbefore=0pt}
+\newlfmP{addrtoskipbefore=0pt}
+\newlfmP{addrfromskipafter=0pt}
+\newlfmP{addrtoskipafter=0pt}
+
+\newlfmP{Headlinewd=0pt,Footlinewd=0pt}
+
+\namefrom{Deniz Gokcin}
+
+\dateset{May 1, 2019}
+
+\greetto{To Whom It May Concern,}
+
+\closeline{Sincerely,}
+\begin{document}
+\begin{newlfm}
+\lipsum[1-4]
+\end{newlfm}
+\end{document}
