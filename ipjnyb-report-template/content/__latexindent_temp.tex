@@ -1,0 +1,592 @@
+\section*{Introduction}
+
+This report explains the implementation details of CS552 Data Science with
+Python, Assignment 1, which is about predicting the car prices using linear
+regression. I will first briefly give some information about linear regression,
+than I will describe my implementation details. I will continue with the results
+by evaluating the trained models with different metrics and lastly, I will
+conclude by discussing on the extracted information.
+
+To run the code, please make sure that all the requirements in requirements.txt file is
+installed on your environment.
+% \lipsum[1-]1
+\section*{Linear Regression}
+
+In statistics, linear regression is a linear approach to modelling the
+relationship between a scalar response (or dependent variable) and one or more
+explanatory variables (or independent variables). The overall idea of regression
+is to examine two things: (1) does a set of predictor variables do a good job
+in predicting an outcome (dependent) variable?  (2) Which variables in
+particular are significant predictors of the outcome variable, and in what way
+do they–indicated by the magnitude and sign of the beta estimates–impact the
+outcome variable?
+
+Three major uses for regression analysis are determining the strength of
+predictors, forecasting an effect, and trend forecasting.
+
+% \lipsum[1-1]
+
+% \begin{figure}[H]
+    % \centering
+    % \includegraphics[width=\textwidth]{images/preprocess.png}
+    % \caption{Caption for the image}
+    % \setlength{\belowcaptionskip}{-20pt}
+    % \setlength{\abovecaptionskip}{-20pt}
+% \end{figure}
+
+% \newpage
+
+\section*{Implementation Details}
+\subsection*{Feature Engineering}
+Feature Engineering is the process of taking certain variables (features) from
+our dataset and transforming them in a predictive model.  After importing the
+libraries that will be used, I loaded car pricing data from a CSV file to a
+pandas dataframe. I checked if there are any cells with missing values and found
+out that there are missing values in the mileage, engine, max\_power and seats.
+Than, I dropped the rows which contain empty cells. I converted the car name to
+brand by splitting the name column and taking the first word since I thought
+using the car brand instead of the entire name would be a better feature. I also
+converted the year column to age because of the same reason. When I examined the
+modified dataset, I realized that there are units in the mileage, engine and
+max\_power columns which are problematic since they are non-numeric. I extracted
+the non-integer fields from the above columns again.
+
+\begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1638}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Convert year to age}
+\PY{n}{df} \PY{o}{=} \PY{n}{df}\PY{o}{.}\PY{n}{rename}\PY{p}{(}\PY{n}{columns}\PY{o}{=}\PY{p}{\PYZob{}}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{year}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{age}\PY{l+s+s2}{\PYZdq{}}\PY{p}{\PYZcb{}}\PY{p}{)}
+\PY{n}{df}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{age}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]} \PY{o}{=} \PY{n}{dt}\PY{o}{.}\PY{n}{now}\PY{p}{(}\PY{p}{)}\PY{o}{.}\PY{n}{year} \PY{o}{\PYZhy{}} \PY{n}{df}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{age}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}
+\end{Verbatim}
+\end{tcolorbox}
+
+\begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1639}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Convert car name to brand}
+\PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{car\PYZus{}brand}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{name}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{apply}\PY{p}{(}\PY{k}{lambda} \PY{n}{x}\PY{p}{:}\PY{n}{x}\PY{o}{.}\PY{n}{split}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{ }\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+\begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1640}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Drop the name column, since it is not needed anymore}
+\PY{n}{df}\PY{o}{.}\PY{n}{drop}\PY{p}{(}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{name}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{,} \PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,} \PY{n}{inplace}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+\begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1641}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Get rid of units}
+\PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{mileage}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{mileage}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{str}\PY{o}{.}\PY{n}{extract}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{(}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{d+)}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{expand}\PY{o}{=}\PY{k+kc}{False}\PY{p}{)}
+\PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{engine}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{engine}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{str}\PY{o}{.}\PY{n}{extract}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{(}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{d+)}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{expand}\PY{o}{=}\PY{k+kc}{False}\PY{p}{)}
+\PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{max\PYZus{}power}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{max\PYZus{}power}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{str}\PY{o}{.}\PY{n}{extract}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{(}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{d+)}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{expand}\PY{o}{=}\PY{k+kc}{False}\PY{p}{)}
+
+\PY{c+c1}{\PYZsh{} Need to drop na liens again since there is now na cells.}
+\PY{n}{df}\PY{o}{.}\PY{n}{dropna}\PY{p}{(}\PY{n}{inplace}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+To convert the string values in fuel, seller\_type owner, car\_brand and
+transmission, I used a method called one-hot encoding. It is a type of vector
+representation in which all of the elements in a vector are 0, except for one,
+which has 1 as its value. After doing the conversion, I dropped the old columns,
+since they were not needed anymore and ended up with a dataframe with 52 columns
+which is free of strings.
+
+\begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1642}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} One\PYZhy{}hot encoding for categorical features}
+\PY{n}{df} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{concat}\PY{p}{(}\PY{p}{[}\PY{n}{df}\PY{p}{,}\PY{n}{pd}\PY{o}{.}\PY{n}{get\PYZus{}dummies}\PY{p}{(}\PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{fuel}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{,} \PY{n}{prefix}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{fuel}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{]}\PY{p}{,}\PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{)}
+\PY{n}{df} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{concat}\PY{p}{(}\PY{p}{[}\PY{n}{df}\PY{p}{,}\PY{n}{pd}\PY{o}{.}\PY{n}{get\PYZus{}dummies}\PY{p}{(}\PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{seller\PYZus{}type}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{,} \PY{n}{prefix}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{seller}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{]}\PY{p}{,}\PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{)}
+\PY{n}{df} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{concat}\PY{p}{(}\PY{p}{[}\PY{n}{df}\PY{p}{,}\PY{n}{pd}\PY{o}{.}\PY{n}{get\PYZus{}dummies}\PY{p}{(}\PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{owner}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{,} \PY{n}{prefix}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{owner}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{]}\PY{p}{,}\PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{)}
+\PY{n}{df} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{concat}\PY{p}{(}\PY{p}{[}\PY{n}{df}\PY{p}{,}\PY{n}{pd}\PY{o}{.}\PY{n}{get\PYZus{}dummies}\PY{p}{(}\PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{car\PYZus{}brand}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{,} \PY{n}{prefix}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{brand}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{]}\PY{p}{,}\PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{)}
+\PY{n}{df} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{concat}\PY{p}{(}\PY{p}{[}\PY{n}{df}\PY{p}{,}\PY{n}{pd}\PY{o}{.}\PY{n}{get\PYZus{}dummies}\PY{p}{(}\PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{transmission}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{,} \PY{n}{prefix}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{transmission}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{]}\PY{p}{,}
+               \PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+\begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1643}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Drop the pre\PYZhy{}one\PYZhy{}hot columns}
+\PY{n}{df}\PY{o}{.}\PY{n}{drop}\PY{p}{(}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{fuel}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{,} \PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,} \PY{n}{inplace}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
+\PY{n}{df}\PY{o}{.}\PY{n}{drop}\PY{p}{(}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{seller\PYZus{}type}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{,} \PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,} \PY{n}{inplace}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
+\PY{n}{df}\PY{o}{.}\PY{n}{drop}\PY{p}{(}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{owner}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{,} \PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,} \PY{n}{inplace}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
+\PY{n}{df}\PY{o}{.}\PY{n}{drop}\PY{p}{(}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{transmission}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{,} \PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,} \PY{n}{inplace}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
+\PY{n}{df}\PY{o}{.}\PY{n}{drop}\PY{p}{(}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{car\PYZus{}brand}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{,} \PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,} \PY{n}{inplace}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+Since the new dataframe has a lot of features, which some of them probably
+having an effect on the car\_price less than the others, I generated a
+correlation matrix to visualize the correlations between features. Since the
+column selling\_price has a direct influence in selling price prediction, I
+dropped car\_price from my dataframe and stored it in a seperate variable for
+further use with the following snippet. 
+        
+\begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1644}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Pop selling price for later use}
+\PY{n}{selling\PYZus{}price} \PY{o}{=} \PY{n}{df}\PY{o}{.}\PY{n}{pop}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{selling\PYZus{}price}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+\newpage
+
+\begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1647}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Visualize the correlation using seaborn}
+\PY{n}{sns}\PY{o}{.}\PY{n}{heatmap}\PY{p}{(}\PY{n}{corr\PYZus{}matrix}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+\begin{tcolorbox}[breakable, size=fbox, boxrule=.5pt, pad at break*=1mm, opacityfill=0]
+\prompt{Out}{outcolor}{1647}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+<AxesSubplot:>
+\end{Verbatim}
+\end{tcolorbox}
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{car-pricing-prediction_files/car-pricing-prediction_16_1.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+As it is visualized in the above matrix, there are a lot dark colored areas in
+the matrix, which means that there are a lot of features in the dataframe which are
+strongly correlated(high-negative correlation). Since having strong correlations
+in a dataframe complexes the model due to the curse of dimensionality, I dropped
+the columns which have a strong correlation(higher than 0.98 and less than 0.1). Just by looking at the correlation
+matrix, it is possible to say that there are interesting relationships between some
+features. For instance the age of the car vs. the selling price, the car brand BMW vs.
+the selling price, km\_driven vs age. 
+
+An interesting correlation led me to a Google Search. brand\_Mahindra and seats. After
+googling for Mahindra car brand, I noticed that they have models which has +5 seats.
+Seeing this visually on the correlation matrix was really satisfying.
+
+\newpage
+
+
+\begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1648}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Select upper triangle of correlation matrix}
+\PY{n}{upper} \PY{o}{=} \PY{n}{corr\PYZus{}matrix}\PY{o}{.}\PY{n}{where}\PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{triu}\PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{ones}\PY{p}{(}\PY{n}{corr\PYZus{}matrix}\PY{o}{.}\PY{n}{shape}\PY{p}{)}\PY{p}{,} \PY{n}{k}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{)}\PY{o}{.}\PY{n}{astype}\PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{bool}\PY{p}{)}\PY{p}{)}
+
+\PY{c+c1}{\PYZsh{} Find index of feature columns with correlation greater than 0.95}
+\PY{n}{to\PYZus{}drop} \PY{o}{=} \PY{p}{[}\PY{n}{column} \PY{k}{for} \PY{n}{column} \PY{o+ow}{in} \PY{n}{upper}\PY{o}{.}\PY{n}{columns} \PY{k}{if} \PY{n+nb}{any}\PY{p}{(}\PY{n}{upper}\PY{p}{[}\PY{n}{column}\PY{p}{]} \PY{o}{\PYZgt{}} \PY{l+m+mf}{0.98}\PY{p}{)}\PY{p}{]} \PY{o}{+}\PYZbs{}
+          \PY{p}{[}\PY{n}{column} \PY{k}{for} \PY{n}{column} \PY{o+ow}{in} \PY{n}{upper}\PY{o}{.}\PY{n}{columns} \PY{k}{if} \PY{n+nb}{any}\PY{p}{(}\PY{n}{upper}\PY{p}{[}\PY{n}{column}\PY{p}{]} \PY{o}{\PYZlt{}} \PY{l+m+mf}{0.01}\PY{p}{)}\PY{p}{]}
+
+\PY{c+c1}{\PYZsh{} to\PYZus{}drop = [column for column in upper.columns if any(upper[column] \PYZgt{} 0.95)]}
+\PY{c+c1}{\PYZsh{} Print what will be dropped}
+\PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{The columns to be dropped: }\PY{l+s+s2}{\PYZdq{}} \PY{o}{+} \PY{n+nb}{str}\PY{p}{(}\PY{n}{to\PYZus{}drop}\PY{p}{)}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+The columns to be dropped: ['transmission\_Manual', 'seats', 'fuel\_CNG',
+'fuel\_LPG', 'seller\_Individual', 'owner\_First Owner', 'owner\_Fourth \& Above
+Owner', 'owner\_Second Owner', 'owner\_Test Drive Car', 'owner\_Third Owner',
+'brand\_Ambassador', 'brand\_Ashok', 'brand\_Audi', 'brand\_BMW', 'brand\_Chevrolet',
+'brand\_Daewoo', 'brand\_Datsun', 'brand\_Fiat', 'brand\_Force', 'brand\_Ford',
+'brand\_Honda', 'brand\_Hyundai', 'brand\_Isuzu', 'brand\_Jaguar', 'brand\_Jeep',
+'brand\_Kia', 'brand\_Land', 'brand\_Lexus', 'brand\_MG', 'brand\_Mahindra',
+'brand\_Maruti', 'brand\_Mercedes-Benz', 'brand\_Mitsubishi', 'brand\_Nissan',
+'brand\_Opel', 'brand\_Renault', 'brand\_Skoda', 'brand\_Tata', 'brand\_Toyota',
+'brand\_Volkswagen', 'brand\_Volvo', 'transmission\_Automatic',
+'transmission\_Manual']
+\end{Verbatim}
+\begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1393}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Check the data}
+\PY{n}{df}\PY{o}{.}\PY{n}{head}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+    
+\begin{tcolorbox}[breakable, size=fbox, boxrule=.5pt, pad at break*=1mm, opacityfill=0]
+\prompt{Out}{outcolor}{1393}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+   age  selling\_price  km\_driven mileage engine max\_power  fuel\_Diesel  \textbackslash{}
+0    6         450000     145500      23   1248        74            1
+1    6         370000     120000      21   1498       103            1
+2   14         158000     140000      17   1497        78            0
+3   10         225000     127000      23   1396        90            1
+4   13         130000     120000      16   1298        88            0
+
+   fuel\_Petrol  seller\_Dealer  seller\_Trustmark Dealer
+0            0              0                        0
+1            0              0                        0
+2            1              0                        0
+3            0              0                        0
+4            1              0                        0
+\end{Verbatim}
+\end{tcolorbox}
+
+
+\newpage
+
+I visualized the remaining columns in the dataframe with a histogram with the
+following snippet. 
+
+\begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1394}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Draw histogram of the data for visualization}
+\PY{n}{hist} \PY{o}{=} \PY{n}{df}\PY{o}{.}\PY{n}{hist}\PY{p}{(}\PY{n}{bins}\PY{o}{=}\PY{l+m+mi}{50}\PY{p}{)}
+\PY{n}{plt}\PY{o}{.}\PY{n}{tight\PYZus{}layout}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{car-pricing-prediction_files/car-pricing-prediction_20_0.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+        
+I plotted the following figures to visualize the data for each dependent and independent feature.
+
+\begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1395}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Visualizing the data for each dependent feature with independent feature}
+\PY{n}{pos\PYZus{}of\PYZus{}col} \PY{o}{=} \PY{n}{df}\PY{o}{.}\PY{n}{columns}\PY{o}{.}\PY{n}{get\PYZus{}loc}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{selling\PYZus{}price}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)} \PY{o}{+} \PY{l+m+mi}{1}
+\PY{n}{x\PYZus{}vars} \PY{o}{=} \PY{n}{df}\PY{o}{.}\PY{n}{iloc}\PY{p}{[}\PY{p}{:}\PY{p}{,}\PY{n}{np}\PY{o}{.}\PY{n}{r\PYZus{}}\PY{p}{[}\PY{n+nb}{range}\PY{p}{(}\PY{n}{pos\PYZus{}of\PYZus{}col}\PY{o}{\PYZhy{}}\PY{l+m+mi}{1}\PY{p}{)}\PY{p}{,}\PY{n+nb}{range}\PY{p}{(}\PY{n}{pos\PYZus{}of\PYZus{}col}\PY{p}{,}\PY{n+nb}{len}\PY{p}{(}\PY{n}{df}\PY{o}{.}\PY{n}{columns}\PY{p}{)}
+                                                  \PY{p}{)}\PY{p}{]}\PY{p}{]}\PY{o}{.}\PY{n}{columns}
+\PY{n}{x\PYZus{}vars} \PY{o}{=} \PY{n}{df}\PY{o}{.}\PY{n}{columns}
+
+\PY{n}{sns}\PY{o}{.}\PY{n}{pairplot}\PY{p}{(}\PY{n}{data}\PY{o}{=}\PY{n}{df}\PY{p}{,}
+             \PY{n}{y\PYZus{}vars}\PY{o}{=}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{selling\PYZus{}price}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{,}
+             \PY{n}{x\PYZus{}vars}\PY{o}{=}\PY{n}{x\PYZus{}vars}\PY{p}{,}
+             \PY{n}{diag\PYZus{}kind}\PY{o}{=}\PY{k+kc}{None}
+             \PY{p}{)}
+\PY{n}{plt}\PY{o}{.}\PY{n}{tight\PYZus{}layout}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{car-pricing-prediction_files/car-pricing-prediction_21_0.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+        
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+    \prompt{In}{incolor}{1396}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    \PY{c+c1}{\PYZsh{} Training the data}
+    \end{Verbatim}
+    \end{tcolorbox}
+    
+        \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+    \prompt{In}{incolor}{1397}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    \PY{n}{df}\PY{o}{.}\PY{n}{head}\PY{p}{(}\PY{p}{)}
+    \end{Verbatim}
+    \end{tcolorbox}
+    
+                \begin{tcolorbox}[breakable, size=fbox, boxrule=.5pt, pad at break*=1mm, opacityfill=0]
+    \prompt{Out}{outcolor}{1397}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+       age  selling\_price  km\_driven mileage engine max\_power  fuel\_Diesel  \textbackslash{}
+    0    6         450000     145500      23   1248        74            1
+    1    6         370000     120000      21   1498       103            1
+    2   14         158000     140000      17   1497        78            0
+    3   10         225000     127000      23   1396        90            1
+    4   13         130000     120000      16   1298        88            0
+    
+       fuel\_Petrol  seller\_Dealer  seller\_Trustmark Dealer
+    0            0              0                        0
+    1            0              0                        0
+    2            1              0                        0
+    3            0              0                        0
+    4            1              0                        0
+    \end{Verbatim}
+    \end{tcolorbox}
+            
+        \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+    \prompt{In}{incolor}{1398}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    \PY{c+c1}{\PYZsh{} Generate different featuresets and save the used columns to a variable for}
+    \PY{c+c1}{\PYZsh{} later pickleing.}
+    \PY{n}{feature\PYZus{}set} \PY{o}{=} \PY{n}{df}\PY{p}{[}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{age}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{max\PYZus{}power}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{fuel\PYZus{}Diesel}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{km\PYZus{}driven}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{]}
+    \PY{c+c1}{\PYZsh{} feature\PYZus{}set = df[[\PYZsq{}age\PYZsq{}, \PYZsq{}max\PYZus{}power\PYZsq{}, \PYZsq{}fuel\PYZus{}Diesel\PYZsq{}, \PYZsq{}engine\PYZsq{}]]}
+    \PY{c+c1}{\PYZsh{} feature\PYZus{}set = df[[\PYZsq{}age\PYZsq{}, \PYZsq{}mileage\PYZsq{}, \PYZsq{}fuel\PYZus{}Diesel\PYZsq{}, \PYZsq{}km\PYZus{}driven\PYZsq{}]]}
+    \PY{n}{feature\PYZus{}set\PYZus{}cols} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{\PYZhy{}}\PY{l+s+s1}{\PYZsq{}}\PY{o}{.}\PY{n}{join}\PY{p}{(}\PY{n+nb}{list}\PY{p}{(}\PY{n}{feature\PYZus{}set}\PY{o}{.}\PY{n}{columns}\PY{p}{)}\PY{p}{)}
+    \end{Verbatim}
+    \end{tcolorbox}
+    
+        \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+    \prompt{In}{incolor}{1399}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    \PY{c+c1}{\PYZsh{} x = df.iloc[:,0:\PYZhy{}1].values.astype(float)}
+    \PY{n}{y} \PY{o}{=} \PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{selling\PYZus{}price}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{astype}\PY{p}{(}\PY{n+nb}{float}\PY{p}{)}
+    \end{Verbatim}
+    \end{tcolorbox}
+    
+        \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+    \prompt{In}{incolor}{1400}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    \PY{c+c1}{\PYZsh{} Split the data to training and test sets}
+    \PY{n}{x\PYZus{}train}\PY{p}{,} \PY{n}{x\PYZus{}test}\PY{p}{,} \PY{n}{y\PYZus{}train}\PY{p}{,} \PY{n}{y\PYZus{}test} \PY{o}{=} \PY{n}{train\PYZus{}test\PYZus{}split}\PY{p}{(}\PY{n}{feature\PYZus{}set}\PY{p}{,} \PY{n}{y}\PY{p}{,} \PY{n}{test\PYZus{}size}\PY{o}{=}\PY{l+m+mf}{0.2}\PY{p}{,}
+                                                        \PY{n}{random\PYZus{}state}\PY{o}{=}\PY{l+m+mi}{147}\PY{p}{)}
+    \end{Verbatim}
+    \end{tcolorbox}
+    
+        \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+    \prompt{In}{incolor}{1401}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    \PY{c+c1}{\PYZsh{} Initialize min\PYZhy{}max scaler and transform each feature by using min\PYZhy{}max scaler}
+    \PY{c+c1}{\PYZsh{} You need to put the feature values to a certain range (in general: (0, 1)) in order to stabilize the model}
+    \PY{n}{scaler} \PY{o}{=} \PY{n}{MinMaxScaler}\PY{p}{(}\PY{n}{feature\PYZus{}range}\PY{o}{=}\PY{p}{(}\PY{l+m+mi}{0}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{)}\PY{p}{)}
+    \PY{n}{x\PYZus{}train} \PY{o}{=} \PY{n}{scaler}\PY{o}{.}\PY{n}{fit\PYZus{}transform}\PY{p}{(}\PY{n}{x\PYZus{}train}\PY{p}{)}
+    \PY{n}{x\PYZus{}train}
+    \end{Verbatim}
+    \end{tcolorbox}
+    
+                \begin{tcolorbox}[breakable, size=fbox, boxrule=.5pt, pad at break*=1mm, opacityfill=0]
+    \prompt{Out}{outcolor}{1401}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    array([[0.26923077, 0.19836957, 1.        , 0.03600957],
+           [0.26923077, 0.11413043, 1.        , 0.03473863],
+           [0.03846154, 0.13315217, 0.        , 0.0023809 ],
+           {\ldots},
+           [0.15384615, 0.05706522, 0.        , 0.00423605],
+           [0.19230769, 0.20652174, 1.        , 0.10167485],
+           [0.34615385, 0.11141304, 0.        , 0.02118192]])
+    \end{Verbatim}
+    \end{tcolorbox}
+            
+        \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+    \prompt{In}{incolor}{1402}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    \PY{c+c1}{\PYZsh{} Print the number of instances in training \PYZam{} test set}
+    \PY{n+nb}{print}\PY{p}{(}\PY{n}{x\PYZus{}train}\PY{o}{.}\PY{n}{shape}\PY{p}{)}
+    \PY{n+nb}{print}\PY{p}{(}\PY{n}{x\PYZus{}test}\PY{o}{.}\PY{n}{shape}\PY{p}{)}
+    \end{Verbatim}
+    \end{tcolorbox}
+    
+        \begin{Verbatim}[commandchars=\\\{\}]
+    (6324, 4)
+    (1582, 4)
+        \end{Verbatim}
+    
+        \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+    \prompt{In}{incolor}{1403}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    \PY{c+c1}{\PYZsh{} Initialize the linear regression model}
+    \PY{n}{model} \PY{o}{=} \PY{n}{LinearRegression}\PY{p}{(}\PY{p}{)}
+    \end{Verbatim}
+    \end{tcolorbox}
+    
+        \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+    \prompt{In}{incolor}{1404}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    \PY{c+c1}{\PYZsh{} Fit the training data to the model}
+    \PY{n}{model}\PY{o}{.}\PY{n}{fit}\PY{p}{(}\PY{n}{x\PYZus{}train}\PY{p}{,} \PY{n}{y\PYZus{}train}\PY{p}{)}
+    \PY{n}{model}\PY{o}{.}\PY{n}{coef\PYZus{}}
+    \end{Verbatim}
+    \end{tcolorbox}
+    
+                \begin{tcolorbox}[breakable, size=fbox, boxrule=.5pt, pad at break*=1mm, opacityfill=0]
+    \prompt{Out}{outcolor}{1404}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    array([-1202121.48764798,  5896958.92350053,     8632.78488789,
+           -3350152.1377382 ])
+    \end{Verbatim}
+    \end{tcolorbox}
+            
+        \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+    \prompt{In}{incolor}{1405}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    \PY{c+c1}{\PYZsh{} Print the general formula of our linear regression model}
+    \PY{n}{\PYZus{}str} \PY{o}{=} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{y = }\PY{l+s+s2}{\PYZdq{}}
+    \PY{k}{for} \PY{n}{i}\PY{p}{,} \PY{n}{m} \PY{o+ow}{in} \PY{n+nb}{enumerate}\PY{p}{(}\PY{n}{model}\PY{o}{.}\PY{n}{coef\PYZus{}}\PY{p}{)}\PY{p}{:}
+        \PY{n}{\PYZus{}str} \PY{o}{+}\PY{o}{=} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{x\PYZus{}}\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{*}\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{+}\PY{l+s+s2}{\PYZdq{}}\PY{o}{.}\PY{n}{format}\PY{p}{(}\PY{n}{i}\PY{o}{+}\PY{l+m+mi}{1}\PY{p}{,} \PY{n}{m}\PY{p}{)}
+    \PY{n}{\PYZus{}str} \PY{o}{+}\PY{o}{=} \PY{n+nb}{str}\PY{p}{(}\PY{n}{model}\PY{o}{.}\PY{n}{intercept\PYZus{}}\PY{p}{)}
+    \PY{n+nb}{print}\PY{p}{(}\PY{n}{\PYZus{}str}\PY{p}{)}
+    \end{Verbatim}
+    \end{tcolorbox}
+    
+        \begin{Verbatim}[commandchars=\\\{\}]
+    y = x\_1*-1202121.4876479814+x\_2*5896958.923500527+x\_3*8632.784887891676+x\_4*-335
+    0152.137738197+73752.16816291772
+        \end{Verbatim}
+    
+        \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+    \prompt{In}{incolor}{1406}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    \PY{c+c1}{\PYZsh{} Scale each feature to range(0, 1)}
+    \PY{n}{x\PYZus{}test} \PY{o}{=} \PY{n}{scaler}\PY{o}{.}\PY{n}{transform}\PY{p}{(}\PY{n}{x\PYZus{}test}\PY{p}{)}
+    \PY{n}{x\PYZus{}test}
+    \end{Verbatim}
+    \end{tcolorbox}
+    
+                \begin{tcolorbox}[breakable, size=fbox, boxrule=.5pt, pad at break*=1mm, opacityfill=0]
+    \prompt{Out}{outcolor}{1406}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    array([[3.46153846e-01, 1.90217391e-01, 1.00000000e+00, 5.16595099e-02],
+           [5.76923077e-01, 1.38586957e-01, 0.00000000e+00, 3.60095676e-02],
+           [3.84615385e-01, 1.57608696e-01, 1.00000000e+00, 3.81278024e-02],
+           {\ldots},
+           [7.69230769e-02, 3.20652174e-01, 1.00000000e+00, 8.46870266e-04],
+           [2.69230769e-01, 1.14130435e-01, 1.00000000e+00, 1.86307222e-02],
+           [3.46153846e-01, 2.55434783e-01, 1.00000000e+00, 6.48175607e-02]])
+    \end{Verbatim}
+    \end{tcolorbox}
+            
+        \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+    \prompt{In}{incolor}{1407}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    \PY{n}{x\PYZus{}test}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}
+    \end{Verbatim}
+    \end{tcolorbox}
+    
+                \begin{tcolorbox}[breakable, size=fbox, boxrule=.5pt, pad at break*=1mm, opacityfill=0]
+    \prompt{Out}{outcolor}{1407}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    array([0.34615385, 0.19021739, 1.        , 0.05165951])
+    \end{Verbatim}
+    \end{tcolorbox}
+            
+        \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+    \prompt{In}{incolor}{1408}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    \PY{c+c1}{\PYZsh{} Predict the values by using all test data}
+    \PY{n}{y\PYZus{}pred} \PY{o}{=} \PY{n}{model}\PY{o}{.}\PY{n}{predict}\PY{p}{(}\PY{n}{x\PYZus{}test}\PY{p}{)}
+    \end{Verbatim}
+    \end{tcolorbox}
+    
+        \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+    \prompt{In}{incolor}{1409}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    \PY{c+c1}{\PYZsh{} Print the predicted and the actual value of the first row in test set}
+    \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Predicted: }\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{, Actual: }\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{\PYZdq{}}\PY{o}{.}\PY{n}{format}\PY{p}{(}\PY{n}{y\PYZus{}pred}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{,} \PY{n}{y\PYZus{}test}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}
+    \end{Verbatim}
+    \end{tcolorbox}
+    
+                \begin{tcolorbox}[breakable, size=fbox, boxrule=.5pt, pad at break*=1mm, opacityfill=0]
+    \prompt{Out}{outcolor}{1409}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    'Predicted: 76824.60059758362, Actual: 370000.0'
+    \end{Verbatim}
+    \end{tcolorbox}
+            
+        \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+    \prompt{In}{incolor}{1410}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    \PY{c+c1}{\PYZsh{} Calculate the score of the model in test data}
+    \PY{n}{score} \PY{o}{=} \PY{n}{model}\PY{o}{.}\PY{n}{score}\PY{p}{(}\PY{n}{x\PYZus{}test}\PY{p}{,} \PY{n}{y\PYZus{}test}\PY{p}{)}
+    \PY{n+nb}{print}\PY{p}{(}\PY{n}{score}\PY{p}{)}
+    \end{Verbatim}
+    \end{tcolorbox}
+    
+        \begin{Verbatim}[commandchars=\\\{\}]
+    0.6417537167824829
+        \end{Verbatim}
+    
+        \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+    \prompt{In}{incolor}{1411}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    \PY{c+c1}{\PYZsh{} Calculate mean squared error of predicted values}
+    \PY{n}{mse} \PY{o}{=} \PY{n}{mean\PYZus{}squared\PYZus{}error}\PY{p}{(}\PY{n}{y\PYZus{}test}\PY{p}{,} \PY{n}{y\PYZus{}pred}\PY{p}{)}
+    \PY{n+nb}{print}\PY{p}{(}\PY{n}{mse}\PY{p}{)}
+    \end{Verbatim}
+    \end{tcolorbox}
+    
+        \begin{Verbatim}[commandchars=\\\{\}]
+    195623662859.41428
+        \end{Verbatim}
+    
+        \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+    \prompt{In}{incolor}{1412}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    \PY{c+c1}{\PYZsh{} Calculate absolute squared error of predicted values}
+    \PY{n}{mae} \PY{o}{=} \PY{n}{mean\PYZus{}absolute\PYZus{}error}\PY{p}{(}\PY{n}{y\PYZus{}test}\PY{p}{,} \PY{n}{y\PYZus{}pred}\PY{p}{)}
+    \PY{n+nb}{print}\PY{p}{(}\PY{n}{mae}\PY{p}{)}
+    \end{Verbatim}
+    \end{tcolorbox}
+    
+        \begin{Verbatim}[commandchars=\\\{\}]
+    275135.5069473646
+        \end{Verbatim}
+    
+        \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+    \prompt{In}{incolor}{1413}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    \PY{c+c1}{\PYZsh{} Calculate  rsquared error of predicted values}
+    \PY{n}{r2e} \PY{o}{=} \PY{n}{r2\PYZus{}score}\PY{p}{(}\PY{n}{y\PYZus{}test}\PY{p}{,} \PY{n}{y\PYZus{}pred}\PY{p}{)}
+    \PY{n+nb}{print}\PY{p}{(}\PY{n}{r2e}\PY{p}{)}
+    \end{Verbatim}
+    \end{tcolorbox}
+    
+        \begin{Verbatim}[commandchars=\\\{\}]
+    0.6417537167824829
+        \end{Verbatim}
+    
+        \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+    \prompt{In}{incolor}{1414}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    \PY{c+c1}{\PYZsh{} Calculate  root mean squared error of predicted values}
+    \PY{n}{rmse} \PY{o}{=} \PY{n}{mean\PYZus{}squared\PYZus{}error}\PY{p}{(}\PY{n}{y\PYZus{}test}\PY{p}{,} \PY{n}{y\PYZus{}pred}\PY{p}{,} \PY{n}{squared}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
+    \PY{n+nb}{print}\PY{p}{(}\PY{n}{rmse}\PY{p}{)}
+    \end{Verbatim}
+    \end{tcolorbox}
+    
+        \begin{Verbatim}[commandchars=\\\{\}]
+    195623662859.41428
+        \end{Verbatim}
+    
+        \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+    \prompt{In}{incolor}{1415}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    \PY{c+c1}{\PYZsh{} Plotting y\PYZus{}test and y\PYZus{}pred to understand the spread.}
+    \PY{n}{fig} \PY{o}{=} \PY{n}{plt}\PY{o}{.}\PY{n}{figure}\PY{p}{(}\PY{p}{)}
+    \PY{n}{plt}\PY{o}{.}\PY{n}{scatter}\PY{p}{(}\PY{n}{y\PYZus{}test}\PY{p}{,}\PY{n}{y\PYZus{}pred}\PY{p}{)}
+    \PY{n}{fig}\PY{o}{.}\PY{n}{suptitle}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{y\PYZus{}test vs y\PYZus{}pred}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{fontsize}\PY{o}{=}\PY{l+m+mi}{20}\PY{p}{)}              \PY{c+c1}{\PYZsh{} Plot heading}
+    \PY{n}{plt}\PY{o}{.}\PY{n}{xlabel}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{y\PYZus{}test}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{fontsize}\PY{o}{=}\PY{l+m+mi}{18}\PY{p}{)}                          \PY{c+c1}{\PYZsh{} X\PYZhy{}label}
+    \PY{n}{plt}\PY{o}{.}\PY{n}{ylabel}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{y\PYZus{}pred}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{fontsize}\PY{o}{=}\PY{l+m+mi}{16}\PY{p}{)}
+    \end{Verbatim}
+    \end{tcolorbox}
+    
+                \begin{tcolorbox}[breakable, size=fbox, boxrule=.5pt, pad at break*=1mm, opacityfill=0]
+    \prompt{Out}{outcolor}{1415}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    Text(0, 0.5, 'y\_pred')
+    \end{Verbatim}
+    \end{tcolorbox}
+            
+        \begin{center}
+        \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{car-pricing-prediction_files/car-pricing-prediction_41_1.png}
+        \end{center}
+        { \hspace*{\fill} \\}
+        
+        \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+    \prompt{In}{incolor}{1416}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    \PY{c+c1}{\PYZsh{} Save the model}
+    \PY{k+kn}{import} \PY{n+nn}{pickle}
+    \PY{k}{with} \PY{n+nb}{open}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{./lr\PYZus{}model\PYZus{}columns}\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{\PYZus{}score}\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{\PYZus{}mse}\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{\PYZus{}mae}\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{\PYZus{}r2e}\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{\PYZus{}rmse}\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{.pkl}\PY{l+s+s2}{\PYZdq{}}\PY{o}{.}\PY{n}{format}
+                  \PY{p}{(}\PY{n}{feature\PYZus{}set\PYZus{}cols}\PY{p}{,}\PY{n}{score}\PY{p}{,} \PY{n}{mse}\PY{p}{,} \PY{n}{mae}\PY{p}{,} \PY{n}{r2e}\PY{p}{,} \PY{n}{rmse}\PY{p}{)}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{wb}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)} \PY{k}{as} \PY{n}{f}\PY{p}{:}
+        \PY{n}{pickle}\PY{o}{.}\PY{n}{dump}\PY{p}{(}\PY{n}{model}\PY{p}{,} \PY{n}{f}\PY{p}{)}
+    \PY{n}{f}\PY{o}{.}\PY{n}{close}\PY{p}{(}\PY{p}{)}
+    \end{Verbatim}
+    \end{tcolorbox}
+    
+        \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+    \prompt{In}{incolor}{1416}{\boxspacing}
+    \begin{Verbatim}[commandchars=\\\{\}]
+    
+    \end{Verbatim}
+    \end{tcolorbox}
+% \newpage
+
+\section*{Results}
+
+\lipsum[1-3]
+
+\section*{Conclusions}
+\lipsum[1-2]
+

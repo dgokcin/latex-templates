@@ -1,0 +1,1443 @@
+\documentclass[11pt]{article}
+
+    \usepackage[breakable]{tcolorbox}
+    \usepackage{parskip} % Stop auto-indenting (to mimic markdown behaviour)
+    
+    \usepackage{iftex}
+    \ifPDFTeX
+    	\usepackage[T1]{fontenc}
+    	\usepackage{mathpazo}
+    \else
+    	\usepackage{fontspec}
+    \fi
+
+    % Basic figure setup, for now with no caption control since it's done
+    % automatically by Pandoc (which extracts ![](path) syntax from Markdown).
+    \usepackage{graphicx}
+    % Maintain compatibility with old templates. Remove in nbconvert 6.0
+    \let\Oldincludegraphics\includegraphics
+    % Ensure that by default, figures have no caption (until we provide a
+    % proper Figure object with a Caption API and a way to capture that
+    % in the conversion process - todo).
+    \usepackage{caption}
+    \DeclareCaptionFormat{nocaption}{}
+    \captionsetup{format=nocaption,aboveskip=0pt,belowskip=0pt}
+
+    \usepackage{float}
+    \floatplacement{figure}{H} % forces figures to be placed at the correct location
+    \usepackage{xcolor} % Allow colors to be defined
+    \usepackage{enumerate} % Needed for markdown enumerations to work
+    \usepackage{geometry} % Used to adjust the document margins
+    \usepackage{amsmath} % Equations
+    \usepackage{amssymb} % Equations
+    \usepackage{textcomp} % defines textquotesingle
+    % Hack from http://tex.stackexchange.com/a/47451/13684:
+    \AtBeginDocument{%
+        \def\PYZsq{\textquotesingle}% Upright quotes in Pygmentized code
+    }
+    \usepackage{upquote} % Upright quotes for verbatim code
+    \usepackage{eurosym} % defines \euro
+    \usepackage[mathletters]{ucs} % Extended unicode (utf-8) support
+    \usepackage{fancyvrb} % verbatim replacement that allows latex
+    \usepackage{grffile} % extends the file name processing of package graphics 
+                         % to support a larger range
+    \makeatletter % fix for old versions of grffile with XeLaTeX
+    \@ifpackagelater{grffile}{2019/11/01}
+    {
+      % Do nothing on new versions
+    }
+    {
+      \def\Gread@@xetex#1{%
+        \IfFileExists{"\Gin@base".bb}%
+        {\Gread@eps{\Gin@base.bb}}%
+        {\Gread@@xetex@aux#1}%
+      }
+    }
+    \makeatother
+    \usepackage[Export]{adjustbox} % Used to constrain images to a maximum size
+    \adjustboxset{max size={0.9\linewidth}{0.9\paperheight}}
+
+    % The hyperref package gives us a pdf with properly built
+    % internal navigation ('pdf bookmarks' for the table of contents,
+    % internal cross-reference links, web links for URLs, etc.)
+    \usepackage{hyperref}
+    % The default LaTeX title has an obnoxious amount of whitespace. By default,
+    % titling removes some of it. It also provides customization options.
+    \usepackage{titling}
+    \usepackage{longtable} % longtable support required by pandoc >1.10
+    \usepackage{booktabs}  % table support for pandoc > 1.12.2
+    \usepackage[inline]{enumitem} % IRkernel/repr support (it uses the enumerate* environment)
+    \usepackage[normalem]{ulem} % ulem is needed to support strikethroughs (\sout)
+                                % normalem makes italics be italics, not underlines
+    \usepackage{mathrsfs}
+    
+
+    
+    % Colors for the hyperref package
+    \definecolor{urlcolor}{rgb}{0,.145,.698}
+    \definecolor{linkcolor}{rgb}{.71,0.21,0.01}
+    \definecolor{citecolor}{rgb}{.12,.54,.11}
+
+    % ANSI colors
+    \definecolor{ansi-black}{HTML}{3E424D}
+    \definecolor{ansi-black-intense}{HTML}{282C36}
+    \definecolor{ansi-red}{HTML}{E75C58}
+    \definecolor{ansi-red-intense}{HTML}{B22B31}
+    \definecolor{ansi-green}{HTML}{00A250}
+    \definecolor{ansi-green-intense}{HTML}{007427}
+    \definecolor{ansi-yellow}{HTML}{DDB62B}
+    \definecolor{ansi-yellow-intense}{HTML}{B27D12}
+    \definecolor{ansi-blue}{HTML}{208FFB}
+    \definecolor{ansi-blue-intense}{HTML}{0065CA}
+    \definecolor{ansi-magenta}{HTML}{D160C4}
+    \definecolor{ansi-magenta-intense}{HTML}{A03196}
+    \definecolor{ansi-cyan}{HTML}{60C6C8}
+    \definecolor{ansi-cyan-intense}{HTML}{258F8F}
+    \definecolor{ansi-white}{HTML}{C5C1B4}
+    \definecolor{ansi-white-intense}{HTML}{A1A6B2}
+    \definecolor{ansi-default-inverse-fg}{HTML}{FFFFFF}
+    \definecolor{ansi-default-inverse-bg}{HTML}{000000}
+
+    % common color for the border for error outputs.
+    \definecolor{outerrorbackground}{HTML}{FFDFDF}
+
+    % commands and environments needed by pandoc snippets
+    % extracted from the output of `pandoc -s`
+    \providecommand{\tightlist}{%
+      \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+    % Add ',fontsize=\small' for more characters per line
+    \newenvironment{Shaded}{}{}
+    \newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{{#1}}}}
+    \newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.56,0.13,0.00}{{#1}}}
+    \newcommand{\DecValTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+    \newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+    \newcommand{\FloatTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+    \newcommand{\CharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\StringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\CommentTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textit{{#1}}}}
+    \newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{{#1}}}
+    \newcommand{\AlertTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{{#1}}}}
+    \newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.02,0.16,0.49}{{#1}}}
+    \newcommand{\RegionMarkerTok}[1]{{#1}}
+    \newcommand{\ErrorTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{{#1}}}}
+    \newcommand{\NormalTok}[1]{{#1}}
+    
+    % Additional commands for more recent versions of Pandoc
+    \newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.53,0.00,0.00}{{#1}}}
+    \newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.73,0.40,0.53}{{#1}}}
+    \newcommand{\ImportTok}[1]{{#1}}
+    \newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.73,0.13,0.13}{\textit{{#1}}}}
+    \newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    \newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    \newcommand{\VariableTok}[1]{\textcolor[rgb]{0.10,0.09,0.49}{{#1}}}
+    \newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{{#1}}}}
+    \newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.40,0.40,0.40}{{#1}}}
+    \newcommand{\BuiltInTok}[1]{{#1}}
+    \newcommand{\ExtensionTok}[1]{{#1}}
+    \newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.74,0.48,0.00}{{#1}}}
+    \newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.49,0.56,0.16}{{#1}}}
+    \newcommand{\InformationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    \newcommand{\WarningTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    
+    
+    % Define a nice break command that doesn't care if a line doesn't already
+    % exist.
+    \def\br{\hspace*{\fill} \\* }
+    % Math Jax compatibility definitions
+    \def\gt{>}
+    \def\lt{<}
+    \let\Oldtex\TeX
+    \let\Oldlatex\LaTeX
+    \renewcommand{\TeX}{\textrm{\Oldtex}}
+    \renewcommand{\LaTeX}{\textrm{\Oldlatex}}
+    % Document parameters
+    % Document title
+    \title{car-pricing-prediction}
+    
+    
+    
+    
+    
+% Pygments definitions
+\makeatletter
+\def\PY@reset{\let\PY@it=\relax \let\PY@bf=\relax%
+    \let\PY@ul=\relax \let\PY@tc=\relax%
+    \let\PY@bc=\relax \let\PY@ff=\relax}
+\def\PY@tok#1{\csname PY@tok@#1\endcsname}
+\def\PY@toks#1+{\ifx\relax#1\empty\else%
+    \PY@tok{#1}\expandafter\PY@toks\fi}
+\def\PY@do#1{\PY@bc{\PY@tc{\PY@ul{%
+    \PY@it{\PY@bf{\PY@ff{#1}}}}}}}
+\def\PY#1#2{\PY@reset\PY@toks#1+\relax+\PY@do{#2}}
+
+\expandafter\def\csname PY@tok@w\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.73,0.73}{##1}}}
+\expandafter\def\csname PY@tok@c\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@cp\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.74,0.48,0.00}{##1}}}
+\expandafter\def\csname PY@tok@k\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@kp\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@kt\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.69,0.00,0.25}{##1}}}
+gi\expandafter\def\csname PY@tok@o\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@ow\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.67,0.13,1.00}{##1}}}
+\expandafter\def\csname PY@tok@nb\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@nf\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\expandafter\def\csname PY@tok@nc\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\expandafter\def\csname PY@tok@nn\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\expandafter\def\csname PY@tok@ne\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.82,0.25,0.23}{##1}}}
+\expandafter\def\csname PY@tok@nv\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@no\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.53,0.00,0.00}{##1}}}
+\expandafter\def\csname PY@tok@nl\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.63,0.63,0.00}{##1}}}
+\expandafter\def\csname PY@tok@ni\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.60,0.60,0.60}{##1}}}
+\expandafter\def\csname PY@tok@na\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.49,0.56,0.16}{##1}}}
+\expandafter\def\csname PY@tok@nt\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@nd\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.67,0.13,1.00}{##1}}}
+\expandafter\def\csname PY@tok@s\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@sd\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@si\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.73,0.40,0.53}{##1}}}
+\expandafter\def\csname PY@tok@se\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.73,0.40,0.13}{##1}}}
+\expandafter\def\csname PY@tok@sr\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.40,0.53}{##1}}}
+\expandafter\def\csname PY@tok@ss\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@sx\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@m\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@gh\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
+\expandafter\def\csname PY@tok@gu\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.50,0.00,0.50}{##1}}}
+\expandafter\def\csname PY@tok@gd\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.63,0.00,0.00}{##1}}}
+\expandafter\def\csname PY@tok@gi\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.63,0.00}{##1}}}
+\expandafter\def\csname PY@tok@gr\endcsname{\def\PY@tc##1{\textcolor[rgb]{1.00,0.00,0.00}{##1}}}
+\expandafter\def\csname PY@tok@ge\endcsname{\let\PY@it=\textit}
+\expandafter\def\csname PY@tok@gs\endcsname{\let\PY@bf=\textbf}
+\expandafter\def\csname PY@tok@gp\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
+\expandafter\def\csname PY@tok@go\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.53,0.53,0.53}{##1}}}
+\expandafter\def\csname PY@tok@gt\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.27,0.87}{##1}}}
+\expandafter\def\csname PY@tok@err\endcsname{\def\PY@bc##1{\setlength{\fboxsep}{0pt}\fcolorbox[rgb]{1.00,0.00,0.00}{1,1,1}{\strut ##1}}}
+\expandafter\def\csname PY@tok@kc\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@kd\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@kn\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@kr\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@bp\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@fm\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\expandafter\def\csname PY@tok@vc\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@vg\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@vi\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@vm\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@sa\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@sb\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@sc\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@dl\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@s2\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@sh\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@s1\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@mb\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@mf\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@mh\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@mi\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@il\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@mo\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@ch\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@cm\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@cpf\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@c1\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@cs\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+
+\def\PYZbs{\char`\\}
+\def\PYZus{\char`\_}
+\def\PYZob{\char`\{}
+\def\PYZcb{\char`\}}
+\def\PYZca{\char`\^}
+\def\PYZam{\char`\&}
+\def\PYZlt{\char`\<}
+\def\PYZgt{\char`\>}
+\def\PYZsh{\char`\#}
+\def\PYZpc{\char`\%}
+\def\PYZdl{\char`\$}
+\def\PYZhy{\char`\-}
+\def\PYZsq{\char`\'}
+\def\PYZdq{\char`\"}
+\def\PYZti{\char`\~}
+% for compatibility with earlier versions
+\def\PYZat{@}
+\def\PYZlb{[}
+\def\PYZrb{]}
+\makeatother
+
+
+    % For linebreaks inside Verbatim environment from package fancyvrb. 
+    \makeatletter
+        \newbox\Wrappedcontinuationbox 
+        \newbox\Wrappedvisiblespacebox 
+        \newcommand*\Wrappedvisiblespace {\textcolor{red}{\textvisiblespace}} 
+        \newcommand*\Wrappedcontinuationsymbol {\textcolor{red}{\llap{\tiny$\m@th\hookrightarrow$}}} 
+        \newcommand*\Wrappedcontinuationindent {3ex } 
+        \newcommand*\Wrappedafterbreak {\kern\Wrappedcontinuationindent\copy\Wrappedcontinuationbox} 
+        % Take advantage of the already applied Pygments mark-up to insert 
+        % potential linebreaks for TeX processing. 
+        %        {, <, #, %, $, ' and ": go to next line. 
+        %        _, }, ^, &, >, - and ~: stay at end of broken line. 
+        % Use of \textquotesingle for straight quote. 
+        \newcommand*\Wrappedbreaksatspecials {% 
+            \def\PYGZus{\discretionary{\char`\_}{\Wrappedafterbreak}{\char`\_}}% 
+            \def\PYGZob{\discretionary{}{\Wrappedafterbreak\char`\{}{\char`\{}}% 
+            \def\PYGZcb{\discretionary{\char`\}}{\Wrappedafterbreak}{\char`\}}}% 
+            \def\PYGZca{\discretionary{\char`\^}{\Wrappedafterbreak}{\char`\^}}% 
+            \def\PYGZam{\discretionary{\char`\&}{\Wrappedafterbreak}{\char`\&}}% 
+            \def\PYGZlt{\discretionary{}{\Wrappedafterbreak\char`\<}{\char`\<}}% 
+            \def\PYGZgt{\discretionary{\char`\>}{\Wrappedafterbreak}{\char`\>}}% 
+            \def\PYGZsh{\discretionary{}{\Wrappedafterbreak\char`\#}{\char`\#}}% 
+            \def\PYGZpc{\discretionary{}{\Wrappedafterbreak\char`\%}{\char`\%}}% 
+            \def\PYGZdl{\discretionary{}{\Wrappedafterbreak\char`\$}{\char`\$}}% 
+            \def\PYGZhy{\discretionary{\char`\-}{\Wrappedafterbreak}{\char`\-}}% 
+            \def\PYGZsq{\discretionary{}{\Wrappedafterbreak\textquotesingle}{\textquotesingle}}% 
+            \def\PYGZdq{\discretionary{}{\Wrappedafterbreak\char`\"}{\char`\"}}% 
+            \def\PYGZti{\discretionary{\char`\~}{\Wrappedafterbreak}{\char`\~}}% 
+        } 
+        % Some characters . , ; ? ! / are not pygmentized. 
+        % This macro makes them "active" and they will insert potential linebreaks 
+        \newcommand*\Wrappedbreaksatpunct {% 
+            \lccode`\~`\.\lowercase{\def~}{\discretionary{\hbox{\char`\.}}{\Wrappedafterbreak}{\hbox{\char`\.}}}% 
+            \lccode`\~`\,\lowercase{\def~}{\discretionary{\hbox{\char`\,}}{\Wrappedafterbreak}{\hbox{\char`\,}}}% 
+            \lccode`\~`\;\lowercase{\def~}{\discretionary{\hbox{\char`\;}}{\Wrappedafterbreak}{\hbox{\char`\;}}}% 
+            \lccode`\~`\:\lowercase{\def~}{\discretionary{\hbox{\char`\:}}{\Wrappedafterbreak}{\hbox{\char`\:}}}% 
+            \lccode`\~`\?\lowercase{\def~}{\discretionary{\hbox{\char`\?}}{\Wrappedafterbreak}{\hbox{\char`\?}}}% 
+            \lccode`\~`\!\lowercase{\def~}{\discretionary{\hbox{\char`\!}}{\Wrappedafterbreak}{\hbox{\char`\!}}}% 
+            \lccode`\~`\/\lowercase{\def~}{\discretionary{\hbox{\char`\/}}{\Wrappedafterbreak}{\hbox{\char`\/}}}% 
+            \catcode`\.\active
+            \catcode`\,\active 
+            \catcode`\;\active
+            \catcode`\:\active
+            \catcode`\?\active
+            \catcode`\!\active
+            \catcode`\/\active 
+            \lccode`\~`\~ 	
+        }
+    \makeatother
+
+    \let\OriginalVerbatim=\Verbatim
+    \makeatletter
+    \renewcommand{\Verbatim}[1][1]{%
+        %\parskip\z@skip
+        \sbox\Wrappedcontinuationbox {\Wrappedcontinuationsymbol}%
+        \sbox\Wrappedvisiblespacebox {\FV@SetupFont\Wrappedvisiblespace}%
+        \def\FancyVerbFormatLine ##1{\hsize\linewidth
+            \vtop{\raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
+                \doublehyphendemerits\z@\finalhyphendemerits\z@
+                \strut ##1\strut}%
+        }%
+        % If the linebreak is at a space, the latter will be displayed as visible
+        % space at end of first line, and a continuation symbol starts next line.
+        % Stretch/shrink are however usually zero for typewriter font.
+        \def\FV@Space {%
+            \nobreak\hskip\z@ plus\fontdimen3\font minus\fontdimen4\font
+            \discretionary{\copy\Wrappedvisiblespacebox}{\Wrappedafterbreak}
+            {\kern\fontdimen2\font}%
+        }%
+        
+        % Allow breaks at special characters using \PYG... macros.
+        \Wrappedbreaksatspecials
+        % Breaks at punctuation characters . , ; ? ! and / need catcode=\active 	
+        \OriginalVerbatim[#1,codes*=\Wrappedbreaksatpunct]%
+    }
+    \makeatother
+
+    % Exact colors from NB
+    \definecolor{incolor}{HTML}{303F9F}
+    \definecolor{outcolor}{HTML}{D84315}
+    \definecolor{cellborder}{HTML}{CFCFCF}
+    \definecolor{cellbackground}{HTML}{F7F7F7}
+    
+    % prompt
+    \makeatletter
+    \newcommand{\boxspacing}{\kern\kvtcb@left@rule\kern\kvtcb@boxsep}
+    \makeatother
+    \newcommand{\prompt}[4]{
+        {\ttfamily\llap{{\color{#2}[#3]:\hspace{3pt}#4}}\vspace{-\baselineskip}}
+    }
+    
+
+    
+    % Prevent overflowing lines due to hard-to-break entities
+    \sloppy 
+    % Setup hyperref package
+    \hypersetup{
+      breaklinks=true,  % so long urls are correctly broken across lines
+      colorlinks=true,
+      urlcolor=urlcolor,
+      linkcolor=linkcolor,
+      citecolor=citecolor,
+      }
+    % Slightly bigger margins than the latex defaults
+    
+    \geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+    
+    
+
+\begin{document}
+    
+    \maketitle
+    
+    
+
+    
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1374}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Importing the libraries}
+\PY{k+kn}{import} \PY{n+nn}{pandas} \PY{k}{as} \PY{n+nn}{pd}
+\PY{k+kn}{import} \PY{n+nn}{seaborn} \PY{k}{as} \PY{n+nn}{sns}
+\PY{k+kn}{import} \PY{n+nn}{numpy} \PY{k}{as} \PY{n+nn}{np}
+\PY{k+kn}{import} \PY{n+nn}{matplotlib}\PY{n+nn}{.}\PY{n+nn}{pyplot} \PY{k}{as} \PY{n+nn}{plt}
+
+\PY{k+kn}{from} \PY{n+nn}{sklearn}\PY{n+nn}{.}\PY{n+nn}{model\PYZus{}selection} \PY{k+kn}{import} \PY{n}{train\PYZus{}test\PYZus{}split}
+\PY{k+kn}{from} \PY{n+nn}{sklearn}\PY{n+nn}{.}\PY{n+nn}{preprocessing} \PY{k+kn}{import} \PY{n}{MinMaxScaler}
+\PY{k+kn}{from} \PY{n+nn}{sklearn}\PY{n+nn}{.}\PY{n+nn}{linear\PYZus{}model} \PY{k+kn}{import} \PY{n}{LinearRegression}
+\PY{k+kn}{from} \PY{n+nn}{sklearn}\PY{n+nn}{.}\PY{n+nn}{metrics} \PY{k+kn}{import} \PY{n}{mean\PYZus{}squared\PYZus{}error}\PY{p}{,} \PY{n}{mean\PYZus{}absolute\PYZus{}error}\PY{p}{,} \PY{n}{r2\PYZus{}score}
+
+\PY{k+kn}{from} \PY{n+nn}{datetime} \PY{k+kn}{import} \PY{n}{datetime} \PY{k}{as} \PY{n}{dt}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1375}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Fetching, exploring and checking out the data}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1376}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Read data from CSV file}
+\PY{n}{df} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{read\PYZus{}csv}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{car\PYZhy{}pricing\PYZhy{}data.csv}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1377}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Show the first 5 rows}
+\PY{n}{df}\PY{o}{.}\PY{n}{head}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+            \begin{tcolorbox}[breakable, size=fbox, boxrule=.5pt, pad at break*=1mm, opacityfill=0]
+\prompt{Out}{outcolor}{1377}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+                           name  year  selling\_price  km\_driven    fuel  \textbackslash{}
+0        Maruti Swift Dzire VDI  2014         450000     145500  Diesel
+1  Skoda Rapid 1.5 TDI Ambition  2014         370000     120000  Diesel
+2      Honda City 2017-2020 EXi  2006         158000     140000  Petrol
+3     Hyundai i20 Sportz Diesel  2010         225000     127000  Diesel
+4        Maruti Swift VXI BSIII  2007         130000     120000  Petrol
+
+  seller\_type transmission         owner     mileage   engine   max\_power  \textbackslash{}
+0  Individual       Manual   First Owner   23.4 kmpl  1248 CC      74 bhp
+1  Individual       Manual  Second Owner  21.14 kmpl  1498 CC  103.52 bhp
+2  Individual       Manual   Third Owner   17.7 kmpl  1497 CC      78 bhp
+3  Individual       Manual   First Owner   23.0 kmpl  1396 CC      90 bhp
+4  Individual       Manual   First Owner   16.1 kmpl  1298 CC    88.2 bhp
+
+   seats
+0    5.0
+1    5.0
+2    5.0
+3    5.0
+4    5.0
+\end{Verbatim}
+\end{tcolorbox}
+        
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1378}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Check the rows with missing values (if any)}
+\PY{n}{df}\PY{o}{.}\PY{n}{isnull}\PY{p}{(}\PY{p}{)}\PY{o}{.}\PY{n}{sum}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+            \begin{tcolorbox}[breakable, size=fbox, boxrule=.5pt, pad at break*=1mm, opacityfill=0]
+\prompt{Out}{outcolor}{1378}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+name               0
+year               0
+selling\_price      0
+km\_driven          0
+fuel               0
+seller\_type        0
+transmission       0
+owner              0
+mileage          221
+engine           221
+max\_power        215
+seats            221
+dtype: int64
+\end{Verbatim}
+\end{tcolorbox}
+        
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1379}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Drop the empty rows}
+\PY{n}{df}\PY{o}{.}\PY{n}{dropna}\PY{p}{(}\PY{n}{inplace}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
+\PY{n}{df}\PY{o}{.}\PY{n}{isnull}\PY{p}{(}\PY{p}{)}\PY{o}{.}\PY{n}{sum}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+            \begin{tcolorbox}[breakable, size=fbox, boxrule=.5pt, pad at break*=1mm, opacityfill=0]
+\prompt{Out}{outcolor}{1379}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+name             0
+year             0
+selling\_price    0
+km\_driven        0
+fuel             0
+seller\_type      0
+transmission     0
+owner            0
+mileage          0
+engine           0
+max\_power        0
+seats            0
+dtype: int64
+\end{Verbatim}
+\end{tcolorbox}
+        
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1380}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Print the number of rows (instances) and columns (features)}
+\PY{n}{df}\PY{o}{.}\PY{n}{shape}
+\end{Verbatim}
+\end{tcolorbox}
+
+            \begin{tcolorbox}[breakable, size=fbox, boxrule=.5pt, pad at break*=1mm, opacityfill=0]
+\prompt{Out}{outcolor}{1380}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+(7907, 12)
+\end{Verbatim}
+\end{tcolorbox}
+        
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1381}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Feature Engineering}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1382}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Convert year to age}
+\PY{n}{df} \PY{o}{=} \PY{n}{df}\PY{o}{.}\PY{n}{rename}\PY{p}{(}\PY{n}{columns}\PY{o}{=}\PY{p}{\PYZob{}}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{year}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{age}\PY{l+s+s2}{\PYZdq{}}\PY{p}{\PYZcb{}}\PY{p}{)}
+\PY{n}{df}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{age}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]} \PY{o}{=} \PY{n}{dt}\PY{o}{.}\PY{n}{now}\PY{p}{(}\PY{p}{)}\PY{o}{.}\PY{n}{year} \PY{o}{\PYZhy{}} \PY{n}{df}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{age}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1383}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Convert car name to brand}
+\PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{car\PYZus{}brand}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{name}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{apply}\PY{p}{(}\PY{k}{lambda} \PY{n}{x}\PY{p}{:}\PY{n}{x}\PY{o}{.}\PY{n}{split}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{ }\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1384}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Drop the name column, since it is not needed anymore}
+\PY{n}{df}\PY{o}{.}\PY{n}{drop}\PY{p}{(}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{name}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{,} \PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,} \PY{n}{inplace}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1385}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Get rid of units}
+\PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{mileage}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{mileage}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{str}\PY{o}{.}\PY{n}{extract}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{(}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{d+)}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{expand}\PY{o}{=}\PY{k+kc}{False}\PY{p}{)}
+\PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{engine}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{engine}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{str}\PY{o}{.}\PY{n}{extract}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{(}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{d+)}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{expand}\PY{o}{=}\PY{k+kc}{False}\PY{p}{)}
+\PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{max\PYZus{}power}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{max\PYZus{}power}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{str}\PY{o}{.}\PY{n}{extract}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{(}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{d+)}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{expand}\PY{o}{=}\PY{k+kc}{False}\PY{p}{)}
+
+\PY{c+c1}{\PYZsh{} Need to drop na liens again since there is now na cells.}
+\PY{n}{df}\PY{o}{.}\PY{n}{dropna}\PY{p}{(}\PY{n}{inplace}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1386}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} One\PYZhy{}hot encoding for categorical features}
+\PY{n}{df} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{concat}\PY{p}{(}\PY{p}{[}\PY{n}{df}\PY{p}{,}\PY{n}{pd}\PY{o}{.}\PY{n}{get\PYZus{}dummies}\PY{p}{(}\PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{fuel}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{,} \PY{n}{prefix}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{fuel}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{]}\PY{p}{,}\PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{)}
+\PY{n}{df} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{concat}\PY{p}{(}\PY{p}{[}\PY{n}{df}\PY{p}{,}\PY{n}{pd}\PY{o}{.}\PY{n}{get\PYZus{}dummies}\PY{p}{(}\PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{seller\PYZus{}type}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{,} \PY{n}{prefix}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{seller}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{]}\PY{p}{,}\PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{)}
+\PY{n}{df} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{concat}\PY{p}{(}\PY{p}{[}\PY{n}{df}\PY{p}{,}\PY{n}{pd}\PY{o}{.}\PY{n}{get\PYZus{}dummies}\PY{p}{(}\PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{owner}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{,} \PY{n}{prefix}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{owner}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{]}\PY{p}{,}\PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{)}
+\PY{n}{df} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{concat}\PY{p}{(}\PY{p}{[}\PY{n}{df}\PY{p}{,}\PY{n}{pd}\PY{o}{.}\PY{n}{get\PYZus{}dummies}\PY{p}{(}\PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{car\PYZus{}brand}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{,} \PY{n}{prefix}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{brand}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{]}\PY{p}{,}\PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{)}
+\PY{n}{df} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{concat}\PY{p}{(}\PY{p}{[}\PY{n}{df}\PY{p}{,}\PY{n}{pd}\PY{o}{.}\PY{n}{get\PYZus{}dummies}\PY{p}{(}\PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{transmission}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{,} \PY{n}{prefix}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{transmission}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{]}\PY{p}{,}
+               \PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1387}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Drop the pre\PYZhy{}one\PYZhy{}hot columns}
+\PY{n}{df}\PY{o}{.}\PY{n}{drop}\PY{p}{(}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{fuel}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{,} \PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,} \PY{n}{inplace}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
+\PY{n}{df}\PY{o}{.}\PY{n}{drop}\PY{p}{(}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{seller\PYZus{}type}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{,} \PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,} \PY{n}{inplace}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
+\PY{n}{df}\PY{o}{.}\PY{n}{drop}\PY{p}{(}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{owner}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{,} \PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,} \PY{n}{inplace}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
+\PY{n}{df}\PY{o}{.}\PY{n}{drop}\PY{p}{(}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{transmission}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{,} \PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,} \PY{n}{inplace}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
+\PY{n}{df}\PY{o}{.}\PY{n}{drop}\PY{p}{(}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{car\PYZus{}brand}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{,} \PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,} \PY{n}{inplace}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1388}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Check the data}
+\PY{n}{df}\PY{o}{.}\PY{n}{head}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+            \begin{tcolorbox}[breakable, size=fbox, boxrule=.5pt, pad at break*=1mm, opacityfill=0]
+\prompt{Out}{outcolor}{1388}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+   age  selling\_price  km\_driven mileage engine max\_power  seats  fuel\_CNG  \textbackslash{}
+0    6         450000     145500      23   1248        74    5.0         0
+1    6         370000     120000      21   1498       103    5.0         0
+2   14         158000     140000      17   1497        78    5.0         0
+3   10         225000     127000      23   1396        90    5.0         0
+4   13         130000     120000      16   1298        88    5.0         0
+
+   fuel\_Diesel  fuel\_LPG  {\ldots}  brand\_Nissan  brand\_Opel  brand\_Renault  \textbackslash{}
+0            1         0  {\ldots}             0           0              0
+1            1         0  {\ldots}             0           0              0
+2            0         0  {\ldots}             0           0              0
+3            1         0  {\ldots}             0           0              0
+4            0         0  {\ldots}             0           0              0
+
+   brand\_Skoda  brand\_Tata  brand\_Toyota  brand\_Volkswagen  brand\_Volvo  \textbackslash{}
+0            0           0             0                 0            0
+1            1           0             0                 0            0
+2            0           0             0                 0            0
+3            0           0             0                 0            0
+4            0           0             0                 0            0
+
+   transmission\_Automatic  transmission\_Manual
+0                       0                    1
+1                       0                    1
+2                       0                    1
+3                       0                    1
+4                       0                    1
+
+[5 rows x 52 columns]
+\end{Verbatim}
+\end{tcolorbox}
+        
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1389}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Create correlation matrix}
+\PY{n}{corr\PYZus{}matrix} \PY{o}{=} \PY{n}{df}\PY{o}{.}\PY{n}{corr}\PY{p}{(}\PY{p}{)}\PY{o}{.}\PY{n}{abs}\PY{p}{(}\PY{p}{)}
+\PY{n}{corr\PYZus{}matrix}
+\end{Verbatim}
+\end{tcolorbox}
+
+            \begin{tcolorbox}[breakable, size=fbox, boxrule=.5pt, pad at break*=1mm, opacityfill=0]
+\prompt{Out}{outcolor}{1389}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+                                 age  selling\_price  km\_driven     seats  \textbackslash{}
+age                         1.000000       0.412302   0.428548  0.007923
+selling\_price               0.412302       1.000000   0.222158  0.041617
+km\_driven                   0.428548       0.222158   1.000000  0.227259
+seats                       0.007923       0.041617   0.227259  1.000000
+fuel\_CNG                    0.029095       0.033197   0.005432  0.038587
+fuel\_Diesel                 0.037536       0.204831   0.271662  0.354764
+fuel\_LPG                    0.059887       0.035978   0.023095  0.028949
+fuel\_Petrol                 0.034351       0.195074   0.274460  0.345399
+seller\_Dealer               0.214525       0.401803   0.178725  0.074086
+seller\_Individual           0.243729       0.386151   0.202851  0.081197
+seller\_Trustmark Dealer     0.100385       0.032779   0.083181  0.028106
+owner\_First Owner           0.491934       0.239850   0.295470  0.035481
+owner\_Fourth \& Above Owner  0.205631       0.073601   0.089244  0.007845
+owner\_Second Owner          0.317328       0.178786   0.209913  0.033751
+owner\_Test Drive Car        0.032661       0.116081   0.024168  0.010921
+owner\_Third Owner           0.271317       0.115113   0.148795  0.005175
+brand\_Ambassador            0.066877       0.014542   0.005274  0.009767
+brand\_Ashok                 0.002864       0.004836   0.025908  0.030296
+brand\_Audi                  0.022907       0.172014   0.019203  0.008654
+brand\_BMW                   0.089073       0.530173   0.085028  0.061050
+brand\_Chevrolet             0.082071       0.079992   0.032300  0.062953
+brand\_Daewoo                0.068840       0.013718   0.004161  0.008458
+brand\_Datsun                0.071441       0.037516   0.052661  0.001365
+brand\_Fiat                  0.024769       0.029520   0.017758  0.031344
+brand\_Force                 0.023892       0.008052   0.006620  0.026346
+brand\_Ford                  0.004582       0.036006   0.013124  0.074206
+brand\_Honda                 0.031067       0.016272   0.040741  0.077292
+brand\_Hyundai               0.023322       0.098909   0.043154  0.193686
+brand\_Isuzu                 0.026150       0.039957   0.010467  0.020552
+brand\_Jaguar                0.067721       0.265111   0.065443  0.041326
+brand\_Jeep                  0.058410       0.115668   0.035416  0.027238
+brand\_Kia                   0.032123       0.023637   0.023450  0.009767
+brand\_Land                  0.021514       0.100222   0.015274  0.026346
+brand\_Lexus                 0.085327       0.363541   0.056925  0.028531
+brand\_MG                    0.026977       0.027147   0.019495  0.008458
+brand\_Mahindra              0.001576       0.007923   0.123206  0.552437
+brand\_Maruti                0.077702       0.193495   0.064701  0.192228
+brand\_Mercedes-Benz         0.000053       0.185590   0.024863  0.029597
+brand\_Mitsubishi            0.054333       0.008681   0.052862  0.028764
+brand\_Nissan                0.003349       0.023062   0.005738  0.044169
+brand\_Opel                  0.046533       0.008044   0.008083  0.004883
+brand\_Renault               0.083663       0.039652   0.030747  0.033835
+brand\_Skoda                 0.010152       0.005690   0.003858  0.045493
+brand\_Tata                  0.058919       0.111956   0.064046  0.022296
+brand\_Toyota                0.020692       0.109607   0.138013  0.268546
+brand\_Volkswagen            0.004975       0.030429   0.007524  0.067200
+brand\_Volvo                 0.102888       0.297988   0.089566  0.041574
+transmission\_Automatic      0.249002       0.590269   0.201186  0.072722
+transmission\_Manual         0.249002       0.590269   0.201186  0.072722
+
+                            fuel\_CNG  fuel\_Diesel  fuel\_LPG  fuel\_Petrol  \textbackslash{}
+age                         0.029095     0.037536  0.059887     0.034351
+selling\_price               0.033197     0.204831  0.035978     0.195074
+km\_driven                   0.005432     0.271662  0.023095     0.274460
+seats                       0.038587     0.354764  0.028949     0.345399
+fuel\_CNG                    1.000000     0.088831  0.005426     0.072894
+fuel\_Diesel                 0.088831     1.000000  0.072800     0.978020
+fuel\_LPG                    0.005426     0.072800  1.000000     0.059739
+fuel\_Petrol                 0.072894     0.978020  0.059739     1.000000
+seller\_Dealer               0.032833     0.065171  0.021417     0.057113
+seller\_Individual           0.036808     0.003567  0.025092     0.012914
+seller\_Trustmark Dealer     0.014273     0.140763  0.011697     0.144956
+owner\_First Owner           0.004295     0.040051  0.024475     0.044107
+owner\_Fourth \& Above Owner  0.000582     0.009021  0.003946     0.008609
+owner\_Second Owner          0.009838     0.051721  0.013442     0.055230
+owner\_Test Drive Car        0.002047     0.017362  0.001678     0.017957
+owner\_Third Owner           0.008627     0.007567  0.021268     0.006146
+brand\_Ambassador            0.001831     0.020609  0.001500     0.020156
+brand\_Ashok                 0.000915     0.010302  0.000750     0.010076
+brand\_Audi                  0.005802     0.047423  0.004755     0.045948
+brand\_BMW                   0.010016     0.106467  0.008208     0.103975
+brand\_Chevrolet             0.014085     0.005945  0.011130     0.005154
+brand\_Daewoo                0.001585     0.021270  0.001299     0.021748
+brand\_Datsun                0.007408     0.099399  0.006071     0.101633
+brand\_Fiat                  0.005875     0.037851  0.004815     0.036335
+brand\_Force                 0.002242     0.025244  0.001838     0.024689
+brand\_Ford                  0.018485     0.089363  0.015149     0.084529
+brand\_Honda                 0.020364     0.123346  0.016689     0.129158
+brand\_Hyundai               0.020503     0.142329  0.040282     0.140595
+brand\_Isuzu                 0.002047     0.023043  0.001678     0.022536
+brand\_Jaguar                0.007746     0.087196  0.006348     0.085280
+brand\_Jeep                  0.005105     0.012773  0.004184     0.011411
+brand\_Kia                   0.001831     0.020609  0.001500     0.020156
+brand\_Land                  0.002242     0.025244  0.001838     0.024689
+brand\_Lexus                 0.005348     0.071748  0.004382     0.073360
+brand\_MG                    0.001585     0.021270  0.001299     0.021748
+brand\_Mahindra              0.026497     0.270684  0.021715     0.264067
+brand\_Maruti                0.107389     0.236812  0.035448     0.215130
+brand\_Mercedes-Benz         0.006748     0.032796  0.005530     0.031032
+brand\_Mitsubishi            0.003427     0.038580  0.002809     0.037732
+brand\_Nissan                0.008279     0.009974  0.006785     0.007743
+brand\_Opel                  0.000915     0.012279  0.000750     0.012555
+brand\_Renault               0.014022     0.022728  0.011491     0.026594
+brand\_Skoda                 0.009394     0.003229  0.007699     0.000679
+brand\_Tata                  0.020294     0.122795  0.021092     0.116946
+brand\_Toyota                0.020037     0.096493  0.016421     0.091252
+brand\_Volkswagen            0.012595     0.051074  0.010322     0.047759
+brand\_Volvo                 0.007523     0.081913  0.006165     0.080045
+transmission\_Automatic      0.031686     0.025579  0.025967     0.034257
+transmission\_Manual         0.031686     0.025579  0.025967     0.034257
+
+                            seller\_Dealer  seller\_Individual  {\ldots}  \textbackslash{}
+age                              0.214525           0.243729  {\ldots}
+selling\_price                    0.401803           0.386151  {\ldots}
+km\_driven                        0.178725           0.202851  {\ldots}
+seats                            0.074086           0.081197  {\ldots}
+fuel\_CNG                         0.032833           0.036808  {\ldots}
+fuel\_Diesel                      0.065171           0.003567  {\ldots}
+fuel\_LPG                         0.021417           0.025092  {\ldots}
+fuel\_Petrol                      0.057113           0.012914  {\ldots}
+seller\_Dealer                    1.000000           0.891999  {\ldots}
+seller\_Individual                0.891999           1.000000  {\ldots}
+seller\_Trustmark Dealer          0.070780           0.387768  {\ldots}
+owner\_First Owner                0.212159           0.229695  {\ldots}
+owner\_Fourth \& Above Owner       0.057993           0.065014  {\ldots}
+owner\_Second Owner               0.159130           0.168052  {\ldots}
+owner\_Test Drive Car             0.062344           0.055611  {\ldots}
+owner\_Third Owner                0.100024           0.113304  {\ldots}
+brand\_Ambassador                 0.009078           0.010178  {\ldots}
+brand\_Ashok                      0.004538           0.005088  {\ldots}
+brand\_Audi                       0.084251           0.072186  {\ldots}
+brand\_BMW                        0.229901           0.202661  {\ldots}
+brand\_Chevrolet                  0.048159           0.058262  {\ldots}
+brand\_Daewoo                     0.007862           0.008814  {\ldots}
+brand\_Datsun                     0.008482           0.015076  {\ldots}
+brand\_Fiat                       0.024059           0.027971  {\ldots}
+brand\_Force                      0.015353           0.011996  {\ldots}
+brand\_Ford                       0.039942           0.020410  {\ldots}
+brand\_Honda                      0.036758           0.109895  {\ldots}
+brand\_Hyundai                    0.044841           0.074100  {\ldots}
+brand\_Isuzu                      0.004348           0.002018  {\ldots}
+brand\_Jaguar                     0.212734           0.189015  {\ldots}
+brand\_Jeep                       0.001987           0.006823  {\ldots}
+brand\_Kia                        0.023340           0.019779  {\ldots}
+brand\_Land                       0.055062           0.048691  {\ldots}
+brand\_Lexus                      0.162872           0.145281  {\ldots}
+brand\_MG                         0.048285           0.043070  {\ldots}
+brand\_Mahindra                   0.075688           0.095827  {\ldots}
+brand\_Maruti                     0.073561           0.072136  {\ldots}
+brand\_Mercedes-Benz              0.081603           0.068816  {\ldots}
+brand\_Mitsubishi                 0.000344           0.003030  {\ldots}
+brand\_Nissan                     0.012096           0.015920  {\ldots}
+brand\_Opel                       0.004538           0.005088  {\ldots}
+brand\_Renault                    0.012904           0.025623  {\ldots}
+brand\_Skoda                      0.097377           0.083762  {\ldots}
+brand\_Tata                       0.084524           0.103250  {\ldots}
+brand\_Toyota                     0.005164           0.116380  {\ldots}
+brand\_Volkswagen                 0.009877           0.003178  {\ldots}
+brand\_Volvo                      0.089941           0.075763  {\ldots}
+transmission\_Automatic           0.336591           0.378698  {\ldots}
+transmission\_Manual              0.336591           0.378698  {\ldots}
+
+                            brand\_Nissan  brand\_Opel  brand\_Renault  \textbackslash{}
+age                             0.003349    0.046533       0.083663
+selling\_price                   0.023062    0.008044       0.039652
+km\_driven                       0.005738    0.008083       0.030747
+seats                           0.044169    0.004883       0.033835
+fuel\_CNG                        0.008279    0.000915       0.014022
+fuel\_Diesel                     0.009974    0.012279       0.022728
+fuel\_LPG                        0.006785    0.000750       0.011491
+fuel\_Petrol                     0.007743    0.012555       0.026594
+seller\_Dealer                   0.012096    0.004538       0.012904
+seller\_Individual               0.015920    0.005088       0.025623
+seller\_Trustmark Dealer         0.010466    0.001973       0.030227
+owner\_First Owner               0.001139    0.015657       0.047223
+owner\_Fourth \& Above Owner      0.005702    0.001616       0.024766
+owner\_Second Owner              0.000995    0.006580       0.031454
+owner\_Test Drive Car            0.002559    0.000283       0.004335
+owner\_Third Owner               0.003962    0.042831       0.020638
+brand\_Ambassador                0.002289    0.000253       0.003877
+brand\_Ashok                     0.001144    0.000127       0.001938
+brand\_Audi                      0.007255    0.000802       0.012288
+brand\_BMW                       0.012524    0.001384       0.021212
+brand\_Chevrolet                 0.017612    0.001947       0.029829
+brand\_Daewoo                    0.001982    0.000219       0.003357
+brand\_Datsun                    0.009263    0.001024       0.015690
+brand\_Fiat                      0.007346    0.000812       0.012442
+brand\_Force                     0.002804    0.000310       0.004749
+brand\_Ford                      0.023113    0.002555       0.039148
+brand\_Honda                     0.025463    0.002815       0.043127
+brand\_Hyundai                   0.046375    0.005127       0.078546
+brand\_Isuzu                     0.002559    0.000283       0.004335
+brand\_Jaguar                    0.009685    0.001071       0.016404
+brand\_Jeep                      0.006383    0.000706       0.010812
+brand\_Kia                       0.002289    0.000253       0.003877
+brand\_Land                      0.002804    0.000310       0.004749
+brand\_Lexus                     0.006686    0.000739       0.011325
+brand\_MG                        0.001982    0.000219       0.003357
+brand\_Mahindra                  0.033132    0.003663       0.056116
+brand\_Maruti                    0.066510    0.007352       0.112649
+brand\_Mercedes-Benz             0.008437    0.000933       0.014291
+brand\_Mitsubishi                0.004285    0.000474       0.007258
+brand\_Nissan                    1.000000    0.001144       0.017532
+brand\_Opel                      0.001144    1.000000       0.001938
+brand\_Renault                   0.017532    0.001938       1.000000
+brand\_Skoda                     0.011747    0.001299       0.019896
+brand\_Tata                      0.032180    0.003557       0.054505
+brand\_Toyota                    0.025054    0.002770       0.042434
+brand\_Volkswagen                0.015749    0.001741       0.026674
+brand\_Volvo                     0.009406    0.001040       0.015931
+transmission\_Automatic          0.001243    0.004380       0.038046
+transmission\_Manual             0.001243    0.004380       0.038046
+
+                            brand\_Skoda  brand\_Tata  brand\_Toyota  \textbackslash{}
+age                            0.010152    0.058919      0.020692
+selling\_price                  0.005690    0.111956      0.109607
+km\_driven                      0.003858    0.064046      0.138013
+seats                          0.045493    0.022296      0.268546
+fuel\_CNG                       0.009394    0.020294      0.020037
+fuel\_Diesel                    0.003229    0.122795      0.096493
+fuel\_LPG                       0.007699    0.021092      0.016421
+fuel\_Petrol                    0.000679    0.116946      0.091252
+seller\_Dealer                  0.097377    0.084524      0.005164
+seller\_Individual              0.083762    0.103250      0.116380
+seller\_Trustmark Dealer        0.013729    0.055482      0.267340
+owner\_First Owner              0.001408    0.009535      0.028917
+owner\_Fourth \& Above Owner     0.016593    0.004845      0.000571
+owner\_Second Owner             0.003771    0.009747      0.040925
+owner\_Test Drive Car           0.002904    0.007957      0.006195
+owner\_Third Owner              0.005835    0.004690      0.015874
+brand\_Ambassador               0.002598    0.007116      0.005540
+brand\_Ashok                    0.001299    0.003557      0.002770
+brand\_Audi                     0.008233    0.022555      0.017560
+brand\_BMW                      0.014212    0.038933      0.030311
+brand\_Chevrolet                0.019985    0.054750      0.042626
+brand\_Daewoo                   0.002249    0.006162      0.004798
+brand\_Datsun                   0.010512    0.028798      0.022421
+brand\_Fiat                     0.008336    0.022837      0.017779
+brand\_Force                    0.003182    0.008717      0.006786
+brand\_Ford                     0.026229    0.071855      0.055942
+brand\_Honda                    0.028895    0.079158      0.061628
+brand\_Hyundai                  0.052625    0.144169      0.112242
+brand\_Isuzu                    0.002904    0.007957      0.006195
+brand\_Jaguar                   0.010991    0.030109      0.023441
+brand\_Jeep                     0.007244    0.019845      0.015450
+brand\_Kia                      0.002598    0.007116      0.005540
+brand\_Land                     0.003182    0.008717      0.006786
+brand\_Lexus                    0.007588    0.020787      0.016183
+brand\_MG                       0.002249    0.006162      0.004798
+brand\_Mahindra                 0.037597    0.102999      0.080189
+brand\_Maruti                   0.075474    0.206764      0.160975
+brand\_Mercedes-Benz            0.009575    0.026230      0.020421
+brand\_Mitsubishi               0.004863    0.013322      0.010372
+brand\_Nissan                   0.011747    0.032180      0.025054
+brand\_Opel                     0.001299    0.003557      0.002770
+brand\_Renault                  0.019896    0.054505      0.042434
+brand\_Skoda                    1.000000    0.036518      0.028431
+brand\_Tata                     0.036518    1.000000      0.077887
+brand\_Toyota                   0.028431    0.077887      1.000000
+brand\_Volkswagen               0.017872    0.048960      0.038117
+brand\_Volvo                    0.010674    0.029241      0.022766
+transmission\_Automatic         0.119199    0.098449      0.053949
+transmission\_Manual            0.119199    0.098449      0.053949
+
+                            brand\_Volkswagen  brand\_Volvo  \textbackslash{}
+age                                 0.004975     0.102888
+selling\_price                       0.030429     0.297988
+km\_driven                           0.007524     0.089566
+seats                               0.067200     0.041574
+fuel\_CNG                            0.012595     0.007523
+fuel\_Diesel                         0.051074     0.081913
+fuel\_LPG                            0.010322     0.006165
+fuel\_Petrol                         0.047759     0.080045
+seller\_Dealer                       0.009877     0.089941
+seller\_Individual                   0.003178     0.075763
+seller\_Trustmark Dealer             0.027152     0.016217
+owner\_First Owner                   0.024776     0.063498
+owner\_Fourth \& Above Owner          0.013405     0.013287
+owner\_Second Owner                  0.016943     0.050921
+owner\_Test Drive Car                0.029388     0.002326
+owner\_Third Owner                   0.007037     0.024277
+brand\_Ambassador                    0.003483     0.002080
+brand\_Ashok                         0.001741     0.001040
+brand\_Audi                          0.011038     0.006593
+brand\_BMW                           0.019054     0.011380
+brand\_Chevrolet                     0.026794     0.016003
+brand\_Daewoo                        0.003016     0.001801
+brand\_Datsun                        0.014094     0.008417
+brand\_Fiat                          0.011176     0.006675
+brand\_Force                         0.004266     0.002548
+brand\_Ford                          0.035165     0.021003
+brand\_Honda                         0.038740     0.023137
+brand\_Hyundai                       0.070555     0.042139
+brand\_Isuzu                         0.003894     0.002326
+brand\_Jaguar                        0.014735     0.008801
+brand\_Jeep                          0.009712     0.005800
+brand\_Kia                           0.003483     0.002080
+brand\_Land                          0.004266     0.002548
+brand\_Lexus                         0.010173     0.006076
+brand\_MG                            0.003016     0.001801
+brand\_Mahindra                      0.050407     0.030106
+brand\_Maruti                        0.101189     0.060435
+brand\_Mercedes-Benz                 0.012837     0.007667
+brand\_Mitsubishi                    0.006520     0.003894
+brand\_Nissan                        0.015749     0.009406
+brand\_Opel                          0.001741     0.001040
+brand\_Renault                       0.026674     0.015931
+brand\_Skoda                         0.017872     0.010674
+brand\_Tata                          0.048960     0.029241
+brand\_Toyota                        0.038117     0.022766
+brand\_Volkswagen                    1.000000     0.014311
+brand\_Volvo                         0.014311     1.000000
+transmission\_Automatic              0.004060     0.237412
+transmission\_Manual                 0.004060     0.237412
+
+                            transmission\_Automatic  transmission\_Manual
+age                                       0.249002             0.249002
+selling\_price                             0.590269             0.590269
+km\_driven                                 0.201186             0.201186
+seats                                     0.072722             0.072722
+fuel\_CNG                                  0.031686             0.031686
+fuel\_Diesel                               0.025579             0.025579
+fuel\_LPG                                  0.025967             0.025967
+fuel\_Petrol                               0.034257             0.034257
+seller\_Dealer                             0.336591             0.336591
+seller\_Individual                         0.378698             0.378698
+seller\_Trustmark Dealer                   0.149310             0.149310
+owner\_First Owner                         0.158941             0.158941
+owner\_Fourth \& Above Owner                0.040027             0.040027
+owner\_Second Owner                        0.122257             0.122257
+owner\_Test Drive Car                      0.049722             0.049722
+owner\_Third Owner                         0.071802             0.071802
+brand\_Ambassador                          0.008761             0.008761
+brand\_Ashok                               0.004380             0.004380
+brand\_Audi                                0.183125             0.183125
+brand\_BMW                                 0.316099             0.316099
+brand\_Chevrolet                           0.049600             0.049600
+brand\_Daewoo                              0.007587             0.007587
+brand\_Datsun                              0.031312             0.031312
+brand\_Fiat                                0.028116             0.028116
+brand\_Force                               0.010732             0.010732
+brand\_Ford                                0.057296             0.057296
+brand\_Honda                               0.043902             0.043902
+brand\_Hyundai                             0.084324             0.084324
+brand\_Isuzu                               0.049722             0.049722
+brand\_Jaguar                              0.244458             0.244458
+brand\_Jeep                                0.035424             0.035424
+brand\_Kia                                 0.041143             0.041143
+brand\_Land                                0.070771             0.070771
+brand\_Lexus                               0.168769             0.168769
+brand\_MG                                  0.050033             0.050033
+brand\_Mahindra                            0.078528             0.078528
+brand\_Maruti                              0.113259             0.113259
+brand\_Mercedes-Benz                       0.203878             0.203878
+brand\_Mitsubishi                          0.016401             0.016401
+brand\_Nissan                              0.001243             0.001243
+brand\_Opel                                0.004380             0.004380
+brand\_Renault                             0.038046             0.038046
+brand\_Skoda                               0.119199             0.119199
+brand\_Tata                                0.098449             0.098449
+brand\_Toyota                              0.053949             0.053949
+brand\_Volkswagen                          0.004060             0.004060
+brand\_Volvo                               0.237412             0.237412
+transmission\_Automatic                    1.000000             1.000000
+transmission\_Manual                       1.000000             1.000000
+
+[49 rows x 49 columns]
+\end{Verbatim}
+\end{tcolorbox}
+        
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1390}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Visualize the correlation using seaborn}
+\PY{n}{plt}\PY{o}{.}\PY{n}{subplots}\PY{p}{(}\PY{n}{figsize}\PY{o}{=}\PY{p}{(}\PY{l+m+mi}{20}\PY{p}{,}\PY{l+m+mi}{15}\PY{p}{)}\PY{p}{)}
+\PY{n}{sns}\PY{o}{.}\PY{n}{heatmap}\PY{p}{(}\PY{n}{corr\PYZus{}matrix}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+            \begin{tcolorbox}[breakable, size=fbox, boxrule=.5pt, pad at break*=1mm, opacityfill=0]
+\prompt{Out}{outcolor}{1390}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+<AxesSubplot:>
+\end{Verbatim}
+\end{tcolorbox}
+        
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{car-pricing-prediction_files/car-pricing-prediction_16_1.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1391}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Select upper triangle of correlation matrix}
+\PY{n}{upper} \PY{o}{=} \PY{n}{corr\PYZus{}matrix}\PY{o}{.}\PY{n}{where}\PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{triu}\PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{ones}\PY{p}{(}\PY{n}{corr\PYZus{}matrix}\PY{o}{.}\PY{n}{shape}\PY{p}{)}\PY{p}{,} \PY{n}{k}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{)}\PY{o}{.}\PY{n}{astype}\PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{bool}\PY{p}{)}\PY{p}{)}
+
+\PY{c+c1}{\PYZsh{} Find index of feature columns with correlation greater than 0.95}
+\PY{n}{to\PYZus{}drop} \PY{o}{=} \PY{p}{[}\PY{n}{column} \PY{k}{for} \PY{n}{column} \PY{o+ow}{in} \PY{n}{upper}\PY{o}{.}\PY{n}{columns} \PY{k}{if} \PY{n+nb}{any}\PY{p}{(}\PY{n}{upper}\PY{p}{[}\PY{n}{column}\PY{p}{]} \PY{o}{\PYZgt{}} \PY{l+m+mf}{0.98}\PY{p}{)}\PY{p}{]} \PY{o}{+}\PYZbs{}
+          \PY{p}{[}\PY{n}{column} \PY{k}{for} \PY{n}{column} \PY{o+ow}{in} \PY{n}{upper}\PY{o}{.}\PY{n}{columns} \PY{k}{if} \PY{n+nb}{any}\PY{p}{(}\PY{n}{upper}\PY{p}{[}\PY{n}{column}\PY{p}{]} \PY{o}{\PYZlt{}} \PY{l+m+mf}{0.01}\PY{p}{)}\PY{p}{]}
+
+\PY{c+c1}{\PYZsh{} to\PYZus{}drop = [column for column in upper.columns if any(upper[column] \PYZgt{} 0.95)]}
+\PY{c+c1}{\PYZsh{} Print what will be dropped}
+\PY{n+nb}{print}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{The columns to be dropped: }\PY{l+s+s2}{\PYZdq{}} \PY{o}{+} \PY{n+nb}{str}\PY{p}{(}\PY{n}{to\PYZus{}drop}\PY{p}{)}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+The columns to be dropped: ['transmission\_Manual', 'seats', 'fuel\_CNG',
+'fuel\_LPG', 'seller\_Individual', 'owner\_First Owner', 'owner\_Fourth \& Above
+Owner', 'owner\_Second Owner', 'owner\_Test Drive Car', 'owner\_Third Owner',
+'brand\_Ambassador', 'brand\_Ashok', 'brand\_Audi', 'brand\_BMW', 'brand\_Chevrolet',
+'brand\_Daewoo', 'brand\_Datsun', 'brand\_Fiat', 'brand\_Force', 'brand\_Ford',
+'brand\_Honda', 'brand\_Hyundai', 'brand\_Isuzu', 'brand\_Jaguar', 'brand\_Jeep',
+'brand\_Kia', 'brand\_Land', 'brand\_Lexus', 'brand\_MG', 'brand\_Mahindra',
+'brand\_Maruti', 'brand\_Mercedes-Benz', 'brand\_Mitsubishi', 'brand\_Nissan',
+'brand\_Opel', 'brand\_Renault', 'brand\_Skoda', 'brand\_Tata', 'brand\_Toyota',
+'brand\_Volkswagen', 'brand\_Volvo', 'transmission\_Automatic',
+'transmission\_Manual']
+    \end{Verbatim}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1392}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Drop features, this lowers model complexity, and aids in generalizing the}
+\PY{c+c1}{\PYZsh{} model.}
+\PY{n}{df}\PY{o}{.}\PY{n}{drop}\PY{p}{(}\PY{n}{df}\PY{p}{[}\PY{n}{to\PYZus{}drop}\PY{p}{]}\PY{p}{,} \PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{,} \PY{n}{inplace}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1393}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Check the data}
+\PY{n}{df}\PY{o}{.}\PY{n}{head}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+            \begin{tcolorbox}[breakable, size=fbox, boxrule=.5pt, pad at break*=1mm, opacityfill=0]
+\prompt{Out}{outcolor}{1393}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+   age  selling\_price  km\_driven mileage engine max\_power  fuel\_Diesel  \textbackslash{}
+0    6         450000     145500      23   1248        74            1
+1    6         370000     120000      21   1498       103            1
+2   14         158000     140000      17   1497        78            0
+3   10         225000     127000      23   1396        90            1
+4   13         130000     120000      16   1298        88            0
+
+   fuel\_Petrol  seller\_Dealer  seller\_Trustmark Dealer
+0            0              0                        0
+1            0              0                        0
+2            1              0                        0
+3            0              0                        0
+4            1              0                        0
+\end{Verbatim}
+\end{tcolorbox}
+        
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1394}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Draw histogram of the data for visualization}
+\PY{n}{hist} \PY{o}{=} \PY{n}{df}\PY{o}{.}\PY{n}{hist}\PY{p}{(}\PY{n}{bins}\PY{o}{=}\PY{l+m+mi}{50}\PY{p}{)}
+\PY{n}{plt}\PY{o}{.}\PY{n}{tight\PYZus{}layout}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{car-pricing-prediction_files/car-pricing-prediction_20_0.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1395}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Visualizing the data for each dependent feature with independent feature}
+\PY{n}{pos\PYZus{}of\PYZus{}col} \PY{o}{=} \PY{n}{df}\PY{o}{.}\PY{n}{columns}\PY{o}{.}\PY{n}{get\PYZus{}loc}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{selling\PYZus{}price}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)} \PY{o}{+} \PY{l+m+mi}{1}
+\PY{n}{x\PYZus{}vars} \PY{o}{=} \PY{n}{df}\PY{o}{.}\PY{n}{iloc}\PY{p}{[}\PY{p}{:}\PY{p}{,}\PY{n}{np}\PY{o}{.}\PY{n}{r\PYZus{}}\PY{p}{[}\PY{n+nb}{range}\PY{p}{(}\PY{n}{pos\PYZus{}of\PYZus{}col}\PY{o}{\PYZhy{}}\PY{l+m+mi}{1}\PY{p}{)}\PY{p}{,}\PY{n+nb}{range}\PY{p}{(}\PY{n}{pos\PYZus{}of\PYZus{}col}\PY{p}{,}\PY{n+nb}{len}\PY{p}{(}\PY{n}{df}\PY{o}{.}\PY{n}{columns}\PY{p}{)}
+                                                  \PY{p}{)}\PY{p}{]}\PY{p}{]}\PY{o}{.}\PY{n}{columns}
+\PY{n}{x\PYZus{}vars} \PY{o}{=} \PY{n}{df}\PY{o}{.}\PY{n}{columns}
+
+\PY{n}{sns}\PY{o}{.}\PY{n}{pairplot}\PY{p}{(}\PY{n}{data}\PY{o}{=}\PY{n}{df}\PY{p}{,}
+             \PY{n}{y\PYZus{}vars}\PY{o}{=}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{selling\PYZus{}price}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{,}
+             \PY{n}{x\PYZus{}vars}\PY{o}{=}\PY{n}{x\PYZus{}vars}\PY{p}{,}
+             \PY{n}{diag\PYZus{}kind}\PY{o}{=}\PY{k+kc}{None}
+             \PY{p}{)}
+\PY{n}{plt}\PY{o}{.}\PY{n}{tight\PYZus{}layout}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{car-pricing-prediction_files/car-pricing-prediction_21_0.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1396}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Training the data}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1397}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{df}\PY{o}{.}\PY{n}{head}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+            \begin{tcolorbox}[breakable, size=fbox, boxrule=.5pt, pad at break*=1mm, opacityfill=0]
+\prompt{Out}{outcolor}{1397}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+   age  selling\_price  km\_driven mileage engine max\_power  fuel\_Diesel  \textbackslash{}
+0    6         450000     145500      23   1248        74            1
+1    6         370000     120000      21   1498       103            1
+2   14         158000     140000      17   1497        78            0
+3   10         225000     127000      23   1396        90            1
+4   13         130000     120000      16   1298        88            0
+
+   fuel\_Petrol  seller\_Dealer  seller\_Trustmark Dealer
+0            0              0                        0
+1            0              0                        0
+2            1              0                        0
+3            0              0                        0
+4            1              0                        0
+\end{Verbatim}
+\end{tcolorbox}
+        
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1398}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Generate different featuresets and save the used columns to a variable for}
+\PY{c+c1}{\PYZsh{} later pickleing.}
+\PY{n}{feature\PYZus{}set} \PY{o}{=} \PY{n}{df}\PY{p}{[}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{age}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{max\PYZus{}power}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{fuel\PYZus{}Diesel}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{km\PYZus{}driven}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{]}
+\PY{c+c1}{\PYZsh{} feature\PYZus{}set = df[[\PYZsq{}age\PYZsq{}, \PYZsq{}max\PYZus{}power\PYZsq{}, \PYZsq{}fuel\PYZus{}Diesel\PYZsq{}, \PYZsq{}engine\PYZsq{}]]}
+\PY{c+c1}{\PYZsh{} feature\PYZus{}set = df[[\PYZsq{}age\PYZsq{}, \PYZsq{}mileage\PYZsq{}, \PYZsq{}fuel\PYZus{}Diesel\PYZsq{}, \PYZsq{}km\PYZus{}driven\PYZsq{}]]}
+\PY{n}{feature\PYZus{}set\PYZus{}cols} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{\PYZhy{}}\PY{l+s+s1}{\PYZsq{}}\PY{o}{.}\PY{n}{join}\PY{p}{(}\PY{n+nb}{list}\PY{p}{(}\PY{n}{feature\PYZus{}set}\PY{o}{.}\PY{n}{columns}\PY{p}{)}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1399}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} x = df.iloc[:,0:\PYZhy{}1].values.astype(float)}
+\PY{n}{y} \PY{o}{=} \PY{n}{df}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{selling\PYZus{}price}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{astype}\PY{p}{(}\PY{n+nb}{float}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1400}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Split the data to training and test sets}
+\PY{n}{x\PYZus{}train}\PY{p}{,} \PY{n}{x\PYZus{}test}\PY{p}{,} \PY{n}{y\PYZus{}train}\PY{p}{,} \PY{n}{y\PYZus{}test} \PY{o}{=} \PY{n}{train\PYZus{}test\PYZus{}split}\PY{p}{(}\PY{n}{feature\PYZus{}set}\PY{p}{,} \PY{n}{y}\PY{p}{,} \PY{n}{test\PYZus{}size}\PY{o}{=}\PY{l+m+mf}{0.2}\PY{p}{,}
+                                                    \PY{n}{random\PYZus{}state}\PY{o}{=}\PY{l+m+mi}{147}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1401}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Initialize min\PYZhy{}max scaler and transform each feature by using min\PYZhy{}max scaler}
+\PY{c+c1}{\PYZsh{} You need to put the feature values to a certain range (in general: (0, 1)) in order to stabilize the model}
+\PY{n}{scaler} \PY{o}{=} \PY{n}{MinMaxScaler}\PY{p}{(}\PY{n}{feature\PYZus{}range}\PY{o}{=}\PY{p}{(}\PY{l+m+mi}{0}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{)}\PY{p}{)}
+\PY{n}{x\PYZus{}train} \PY{o}{=} \PY{n}{scaler}\PY{o}{.}\PY{n}{fit\PYZus{}transform}\PY{p}{(}\PY{n}{x\PYZus{}train}\PY{p}{)}
+\PY{n}{x\PYZus{}train}
+\end{Verbatim}
+\end{tcolorbox}
+
+            \begin{tcolorbox}[breakable, size=fbox, boxrule=.5pt, pad at break*=1mm, opacityfill=0]
+\prompt{Out}{outcolor}{1401}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+array([[0.26923077, 0.19836957, 1.        , 0.03600957],
+       [0.26923077, 0.11413043, 1.        , 0.03473863],
+       [0.03846154, 0.13315217, 0.        , 0.0023809 ],
+       {\ldots},
+       [0.15384615, 0.05706522, 0.        , 0.00423605],
+       [0.19230769, 0.20652174, 1.        , 0.10167485],
+       [0.34615385, 0.11141304, 0.        , 0.02118192]])
+\end{Verbatim}
+\end{tcolorbox}
+        
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1402}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Print the number of instances in training \PYZam{} test set}
+\PY{n+nb}{print}\PY{p}{(}\PY{n}{x\PYZus{}train}\PY{o}{.}\PY{n}{shape}\PY{p}{)}
+\PY{n+nb}{print}\PY{p}{(}\PY{n}{x\PYZus{}test}\PY{o}{.}\PY{n}{shape}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+(6324, 4)
+(1582, 4)
+    \end{Verbatim}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1403}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Initialize the linear regression model}
+\PY{n}{model} \PY{o}{=} \PY{n}{LinearRegression}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1404}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Fit the training data to the model}
+\PY{n}{model}\PY{o}{.}\PY{n}{fit}\PY{p}{(}\PY{n}{x\PYZus{}train}\PY{p}{,} \PY{n}{y\PYZus{}train}\PY{p}{)}
+\PY{n}{model}\PY{o}{.}\PY{n}{coef\PYZus{}}
+\end{Verbatim}
+\end{tcolorbox}
+
+            \begin{tcolorbox}[breakable, size=fbox, boxrule=.5pt, pad at break*=1mm, opacityfill=0]
+\prompt{Out}{outcolor}{1404}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+array([-1202121.48764798,  5896958.92350053,     8632.78488789,
+       -3350152.1377382 ])
+\end{Verbatim}
+\end{tcolorbox}
+        
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1405}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Print the general formula of our linear regression model}
+\PY{n}{\PYZus{}str} \PY{o}{=} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{y = }\PY{l+s+s2}{\PYZdq{}}
+\PY{k}{for} \PY{n}{i}\PY{p}{,} \PY{n}{m} \PY{o+ow}{in} \PY{n+nb}{enumerate}\PY{p}{(}\PY{n}{model}\PY{o}{.}\PY{n}{coef\PYZus{}}\PY{p}{)}\PY{p}{:}
+    \PY{n}{\PYZus{}str} \PY{o}{+}\PY{o}{=} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{x\PYZus{}}\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{*}\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{+}\PY{l+s+s2}{\PYZdq{}}\PY{o}{.}\PY{n}{format}\PY{p}{(}\PY{n}{i}\PY{o}{+}\PY{l+m+mi}{1}\PY{p}{,} \PY{n}{m}\PY{p}{)}
+\PY{n}{\PYZus{}str} \PY{o}{+}\PY{o}{=} \PY{n+nb}{str}\PY{p}{(}\PY{n}{model}\PY{o}{.}\PY{n}{intercept\PYZus{}}\PY{p}{)}
+\PY{n+nb}{print}\PY{p}{(}\PY{n}{\PYZus{}str}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+y = x\_1*-1202121.4876479814+x\_2*5896958.923500527+x\_3*8632.784887891676+x\_4*-335
+0152.137738197+73752.16816291772
+    \end{Verbatim}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1406}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Scale each feature to range(0, 1)}
+\PY{n}{x\PYZus{}test} \PY{o}{=} \PY{n}{scaler}\PY{o}{.}\PY{n}{transform}\PY{p}{(}\PY{n}{x\PYZus{}test}\PY{p}{)}
+\PY{n}{x\PYZus{}test}
+\end{Verbatim}
+\end{tcolorbox}
+
+            \begin{tcolorbox}[breakable, size=fbox, boxrule=.5pt, pad at break*=1mm, opacityfill=0]
+\prompt{Out}{outcolor}{1406}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+array([[3.46153846e-01, 1.90217391e-01, 1.00000000e+00, 5.16595099e-02],
+       [5.76923077e-01, 1.38586957e-01, 0.00000000e+00, 3.60095676e-02],
+       [3.84615385e-01, 1.57608696e-01, 1.00000000e+00, 3.81278024e-02],
+       {\ldots},
+       [7.69230769e-02, 3.20652174e-01, 1.00000000e+00, 8.46870266e-04],
+       [2.69230769e-01, 1.14130435e-01, 1.00000000e+00, 1.86307222e-02],
+       [3.46153846e-01, 2.55434783e-01, 1.00000000e+00, 6.48175607e-02]])
+\end{Verbatim}
+\end{tcolorbox}
+        
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1407}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{x\PYZus{}test}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}
+\end{Verbatim}
+\end{tcolorbox}
+
+            \begin{tcolorbox}[breakable, size=fbox, boxrule=.5pt, pad at break*=1mm, opacityfill=0]
+\prompt{Out}{outcolor}{1407}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+array([0.34615385, 0.19021739, 1.        , 0.05165951])
+\end{Verbatim}
+\end{tcolorbox}
+        
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1408}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Predict the values by using all test data}
+\PY{n}{y\PYZus{}pred} \PY{o}{=} \PY{n}{model}\PY{o}{.}\PY{n}{predict}\PY{p}{(}\PY{n}{x\PYZus{}test}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1409}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Print the predicted and the actual value of the first row in test set}
+\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Predicted: }\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{, Actual: }\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{\PYZdq{}}\PY{o}{.}\PY{n}{format}\PY{p}{(}\PY{n}{y\PYZus{}pred}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{,} \PY{n}{y\PYZus{}test}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+            \begin{tcolorbox}[breakable, size=fbox, boxrule=.5pt, pad at break*=1mm, opacityfill=0]
+\prompt{Out}{outcolor}{1409}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+'Predicted: 76824.60059758362, Actual: 370000.0'
+\end{Verbatim}
+\end{tcolorbox}
+        
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1410}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Calculate the score of the model in test data}
+\PY{n}{score} \PY{o}{=} \PY{n}{model}\PY{o}{.}\PY{n}{score}\PY{p}{(}\PY{n}{x\PYZus{}test}\PY{p}{,} \PY{n}{y\PYZus{}test}\PY{p}{)}
+\PY{n+nb}{print}\PY{p}{(}\PY{n}{score}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+0.6417537167824829
+    \end{Verbatim}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1411}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Calculate mean squared error of predicted values}
+\PY{n}{mse} \PY{o}{=} \PY{n}{mean\PYZus{}squared\PYZus{}error}\PY{p}{(}\PY{n}{y\PYZus{}test}\PY{p}{,} \PY{n}{y\PYZus{}pred}\PY{p}{)}
+\PY{n+nb}{print}\PY{p}{(}\PY{n}{mse}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+195623662859.41428
+    \end{Verbatim}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1412}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Calculate absolute squared error of predicted values}
+\PY{n}{mae} \PY{o}{=} \PY{n}{mean\PYZus{}absolute\PYZus{}error}\PY{p}{(}\PY{n}{y\PYZus{}test}\PY{p}{,} \PY{n}{y\PYZus{}pred}\PY{p}{)}
+\PY{n+nb}{print}\PY{p}{(}\PY{n}{mae}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+275135.5069473646
+    \end{Verbatim}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1413}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Calculate  rsquared error of predicted values}
+\PY{n}{r2e} \PY{o}{=} \PY{n}{r2\PYZus{}score}\PY{p}{(}\PY{n}{y\PYZus{}test}\PY{p}{,} \PY{n}{y\PYZus{}pred}\PY{p}{)}
+\PY{n+nb}{print}\PY{p}{(}\PY{n}{r2e}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+0.6417537167824829
+    \end{Verbatim}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1414}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Calculate  root mean squared error of predicted values}
+\PY{n}{rmse} \PY{o}{=} \PY{n}{mean\PYZus{}squared\PYZus{}error}\PY{p}{(}\PY{n}{y\PYZus{}test}\PY{p}{,} \PY{n}{y\PYZus{}pred}\PY{p}{,} \PY{n}{squared}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
+\PY{n+nb}{print}\PY{p}{(}\PY{n}{rmse}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+195623662859.41428
+    \end{Verbatim}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1415}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Plotting y\PYZus{}test and y\PYZus{}pred to understand the spread.}
+\PY{n}{fig} \PY{o}{=} \PY{n}{plt}\PY{o}{.}\PY{n}{figure}\PY{p}{(}\PY{p}{)}
+\PY{n}{plt}\PY{o}{.}\PY{n}{scatter}\PY{p}{(}\PY{n}{y\PYZus{}test}\PY{p}{,}\PY{n}{y\PYZus{}pred}\PY{p}{)}
+\PY{n}{fig}\PY{o}{.}\PY{n}{suptitle}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{y\PYZus{}test vs y\PYZus{}pred}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{fontsize}\PY{o}{=}\PY{l+m+mi}{20}\PY{p}{)}              \PY{c+c1}{\PYZsh{} Plot heading}
+\PY{n}{plt}\PY{o}{.}\PY{n}{xlabel}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{y\PYZus{}test}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{fontsize}\PY{o}{=}\PY{l+m+mi}{18}\PY{p}{)}                          \PY{c+c1}{\PYZsh{} X\PYZhy{}label}
+\PY{n}{plt}\PY{o}{.}\PY{n}{ylabel}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{y\PYZus{}pred}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{fontsize}\PY{o}{=}\PY{l+m+mi}{16}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+            \begin{tcolorbox}[breakable, size=fbox, boxrule=.5pt, pad at break*=1mm, opacityfill=0]
+\prompt{Out}{outcolor}{1415}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+Text(0, 0.5, 'y\_pred')
+\end{Verbatim}
+\end{tcolorbox}
+        
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{car-pricing-prediction_files/car-pricing-prediction_41_1.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1416}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Save the model}
+\PY{k+kn}{import} \PY{n+nn}{pickle}
+\PY{k}{with} \PY{n+nb}{open}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{./lr\PYZus{}model\PYZus{}columns}\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{\PYZus{}score}\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{\PYZus{}mse}\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{\PYZus{}mae}\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{\PYZus{}r2e}\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{\PYZus{}rmse}\PY{l+s+si}{\PYZob{}\PYZcb{}}\PY{l+s+s2}{.pkl}\PY{l+s+s2}{\PYZdq{}}\PY{o}{.}\PY{n}{format}
+              \PY{p}{(}\PY{n}{feature\PYZus{}set\PYZus{}cols}\PY{p}{,}\PY{n}{score}\PY{p}{,} \PY{n}{mse}\PY{p}{,} \PY{n}{mae}\PY{p}{,} \PY{n}{r2e}\PY{p}{,} \PY{n}{rmse}\PY{p}{)}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{wb}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)} \PY{k}{as} \PY{n}{f}\PY{p}{:}
+    \PY{n}{pickle}\PY{o}{.}\PY{n}{dump}\PY{p}{(}\PY{n}{model}\PY{p}{,} \PY{n}{f}\PY{p}{)}
+\PY{n}{f}\PY{o}{.}\PY{n}{close}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1416}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+
+\end{Verbatim}
+\end{tcolorbox}
+
+
+    % Add a bibliography block to the postdoc
+    
+    
+    
+\end{document}
